@@ -138,6 +138,22 @@ table {
 	--white: #fff;
 	--black: #3f4653;
 	--error: #c10f0f;
+	--blue: #0086f0;
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--secondaryDark) var(--white);
+}
+*::-webkit-scrollbar {
+	width: 5px;
+}
+*::-webkit-scrollbar-track {
+	background: var(--secondaryLight);
+}
+*::-webkit-scrollbar-thumb {
+	background-color: var(--secondary);
+	border-radius: 20px;
 }
 
 /* MIX INs  */
@@ -308,6 +324,10 @@ table {
 	flex: 0;
 }
 
+.shrink0 {
+	flex-shrink: 0;
+}
+
 /* Main */
 .popupWrap {
 	height: 500px;
@@ -391,6 +411,11 @@ table {
 
 .popupSubTabDisplay {
 	background: var(--secondaryLight);
+	min-height: 0;
+}
+
+.toggleContainer {
+	min-height: 0;
 }
 
 .subTabsWrap {
@@ -428,6 +453,10 @@ table {
 
 .topMain {
 	padding: 10px;
+}
+
+.mainContainer {
+	min-height: 0;
 }
 
 .notifWrap {
@@ -631,7 +660,7 @@ table {
 	margin-right: 10px;
 }
 
-.dropDownContent select {
+.popupWrap select {
 	height: 36px;
 	border-radius: 4px;
 	border: solid 1px #e8e8e8;
@@ -819,3 +848,196 @@ button:hover {
 }
 
 /* Filter Search */
+
+/* 
+*
+*
+*  REPORTS CSS
+*
+*
+*/
+
+.whiteContainer {
+	border: 1px solid var(--secondary);
+	background: var(--white);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.viewContainer {
+	padding: 15px;
+	overflow-y: auto;
+}
+
+.listViewPieData {
+	height: 152px;
+}
+
+.donutChartContainer {
+	border-right: 1px solid var(--secondary);
+}
+
+.viewDataInner {
+	border-bottom: 1px solid var(--secondary);
+	font-size: 12px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+	padding: 0 10px;
+}
+
+.viewDataInner span {
+	padding: 23px 5px;
+}
+
+.listViewPieDataLabel {
+	flex: 1;
+}
+
+.viewDataInner:last-child {
+	border-bottom: none;
+}
+
+.viewDataNumber {
+	font-size: 20px;
+	font-weight: 500;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	display: flex;
+	align-items: center;
+}
+
+.viewDataNumber.green {
+	color: var(--primary);
+}
+
+.viewDataNumber.blue {
+	color: var(--blue);
+}
+
+/* Accordion */
+
+.detailsContainer {
+}
+
+.viewContainer .heading {
+	font-size: 12px;
+	font-weight: 500;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+	padding: 10px 0;
+}
+
+.accordionHeader {
+	padding: 15px 10px;
+	border-bottom: 1px solid var(--secondary);
+	justify-content: space-between;
+	cursor: pointer;
+}
+
+.accordionHeader:after {
+	content: '';
+	position: relative;
+	display: block;
+	height: 6px;
+	width: 6px;
+	border-right: 1px solid var(--secondaryDark);
+	border-bottom: 1px solid var(--secondaryDark);
+	transform: rotate(45deg);
+}
+
+.listViewContainer .subHeading {
+	font-size: 12px;
+	font-weight: bold;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+}
+
+.accordionBody ul {
+	margin: 10px;
+}
+
+.accordionBody ul li {
+	font-size: 12px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+	margin: 10px 0;
+}
+
+/* Accordion */
+
+/* StatisticsData */
+.statisticsGraphContainer {
+	padding: 10px;
+	height: 237px;
+}
+
+.optionContainer select:first-child {
+	margin-right: 10px;
+}
+
+.totalDataViewContainer {
+	margin-top: 10px;
+}
+
+.totalDataViewHeader {
+	font-size: 13px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+	padding: 15px;
+	justify-content: space-between;
+	border-bottom: 1px solid var(--secondary);
+}
+
+.totalDataViewBody {
+	padding: 0 15px;
+}
+
+.totalDataViewBody ul li {
+	/* display:none; */
+	font-size: 13px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
+	padding: 8px 0;
+	border-bottom: 1px solid var(--secondary);
+}
+
+.totalDataViewBody ul li:last-child {
+	border-bottom: none;
+}
+
+.totalDataViewBody ul li span {
+	padding: 0 5px;
+}
+/* StatisticsData */
+
+/* 
+*
+*
+*  REPORTS CSS
+*
+*
+*/

@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles/popup.css">
 </head>
-<body>
+<body style="background-color: aqua;">
     <main class="popupWrap flex directionColumn">
         <!-- TABS MAIN -->
         <div class="popupWrap__tabWrap">
@@ -60,9 +60,9 @@
         </div>
         <!-- TABS MAIN -->
         
-        <div class="flex1 flex">
+        <div class="flex1 flex mainContainer">
             <!-- Tab Home -->
-            <div id="home" class="popupMainTabDisplay flex directionColumn flex1"> 
+            <div id="home" class="popupMainTabDisplay flex directionColumn   flex1"> 
                 <!-- SubTabs -->
                 <div class="subTabsWrap">
                     <ul>
@@ -76,7 +76,7 @@
                 <!-- SubTabsDisplay -->
                 <div class="toggleContainer flex directionColumn flex1">
                     <!-- Threats DisplayView -->
-                    <div id="threats" class="popupSubTabDisplay flex directionColumn flex1">
+                    <div id="threats" class="popupSubTabDisplay flex directionColumn flex1" >
                         <div p-threat="enable" class="topMain flex1 flex directionColumn">
                             <!-- Banner -->
                             <div n-notifwrap="error" class="notifWrap alignCenter flex">
@@ -655,6 +655,209 @@
 
             </div>
             <!-- Tab Home -->
+
+            <!-- Tab Reports -->
+            <div id="reports" class="popupMainTabDisplay flex directionColumn hide flex1">
+                <!-- SubTabs -->
+                <div class="subTabsWrap">
+                    <ul>
+                        <li popup-subtab="listView" class="active"><span>List View</span></li>
+                        <li popup-subtab="statistics"><span>Statistics</span></li>
+                    </ul>
+                </div>
+                <!-- SubTabs -->
+
+                <!-- Sub Tabs Display -->
+                <div class="toggleContainer flex directionColumn flex1">
+                    <!-- List View  -->
+                    <div id="listView" class="popupSubTabDisplay flex directionColumn flex1">
+                        <div class="viewContainer flex directionColumn flex1">
+                            <!-- Donut Chart Container  -->
+                            <div class="listViewPieData whiteContainer flex shrink0">
+                                <div class="flex1 donutChartContainer">
+                                    <!-- Donut Chart DrillDown -->
+                                </div>
+                                <div class="flex1 flex directionColumn donutChartDataContainer">
+                                    <div class="flex flex1 viewDataInner">
+                                        <span class="listViewPieDataIcon flex alignCenter">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+                                                <g fill="none" fill-rule="evenodd">
+                                                    <g fill="#8995A8" fill-rule="nonzero">
+                                                        <g>
+                                                            <g>
+                                                                <g>
+                                                                    <path
+                                                                        d="M12.87 10.77C13.57 9.691 14 8.4 14 7s-.43-2.692-1.13-3.77c0 0 0-.053-.055-.053C11.577 1.238 9.423 0 7 0 4.577 0 2.423 1.238 1.185 3.123c0 0 0 .054-.054.054C.43 4.307 0 5.6 0 7s.43 2.692 1.13 3.77c0 0 0 .053.055.053C2.423 12.762 4.577 14 7 14c2.423 0 4.577-1.238 5.815-3.123.054-.054.054-.054.054-.108zM7 12.922c-.754 0-1.562-1.4-1.938-3.554 1.238-.323 2.638-.323 3.93 0-.43 2.154-1.238 3.554-1.992 3.554zM1.077 7c0-.97.215-1.885.646-2.692.646.43 1.346.807 2.1 1.077-.054.538-.108 1.077-.108 1.615s.054 1.077.108 1.615c-.754.27-1.454.647-2.1 1.077-.43-.807-.646-1.723-.646-2.692zM7 1.077c.754 0 1.562 1.4 1.938 3.554-1.238.323-2.638.323-3.93 0C5.438 2.477 6.246 1.077 7 1.077zM4.846 7c0-.43 0-.915.054-1.292.7.161 1.4.215 2.1.215.7 0 1.4-.054 2.1-.215.054.377.054.861.054 1.292 0 .43 0 .915-.054 1.292-1.346-.323-2.854-.323-4.2 0-.054-.377-.054-.861-.054-1.292zm5.277-1.615c.754-.27 1.454-.647 2.1-1.077.43.807.646 1.723.646 2.692 0 .97-.215 1.885-.646 2.692-.646-.43-1.346-.807-2.1-1.077.054-.538.108-1.077.108-1.615s-.054-1.077-.108-1.615zm1.562-1.993c-.485.377-1.077.7-1.67.916-.215-1.131-.538-2.154-1.023-2.854 1.077.377 1.993 1.023 2.693 1.938zM5.008 1.454c-.431.7-.808 1.67-1.023 2.854-.593-.216-1.185-.539-1.67-.916.7-.915 1.616-1.561 2.693-1.938zm-2.693 9.154c.485-.377 1.077-.7 1.67-.916.215 1.131.538 2.154 1.023 2.854-1.077-.377-1.993-1.023-2.693-1.938zm6.677 1.938c.431-.754.808-1.723 1.023-2.854.593.216 1.185.539 1.67.916-.7.915-1.616 1.561-2.693 1.938z"
+                                                                        transform="translate(-193 -128) translate(12 104) translate(181 23) translate(0 1)" />
+                                                                </g>
+                                                            </g>
+                                                        </g>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </span>
+                                        <span class="listViewPieDataLabel">Risky Sited Blocked</span>
+                                        <span class="viewDataNumber green">
+                                            <!-- Number -->
+                                            0
+                                        </span>
+                                    </div>
+                                    <div class="flex flex1 viewDataInner">
+                                        <span class="listViewPieDataIcon flex alignCenter">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+                                                <g fill="none" fill-rule="evenodd">
+                                                    <g fill="#8995A8" fill-rule="nonzero">
+                                                        <g>
+                                                            <g>
+                                                                <g>
+                                                                    <path
+                                                                        d="M1.448 10.138v2.172c0 .134.108.242.242.242h2.172V14H1.69C.756 14 0 13.244 0 12.31v-2.172h1.448zm12.552 0v2.172c0 .934-.756 1.69-1.69 1.69h-2.172v-1.448h2.172c.134 0 .242-.108.242-.242v-2.172H14zm-6.276-8.69v2.004c1.423.29 2.534 1.401 2.824 2.824h2.004v1.448h-2.004c-.29 1.423-1.401 2.534-2.824 2.824v2.004H6.276v-2.004c-1.423-.29-2.534-1.401-2.824-2.824H1.448V6.276h2.004c.29-1.423 1.401-2.534 2.824-2.824V1.448h1.448zM7 4.828C5.8 4.828 4.828 5.8 4.828 7c0 1.2.972 2.172 2.172 2.172C8.2 9.172 9.172 8.2 9.172 7 9.172 5.8 8.2 4.828 7 4.828zM3.862 0v1.448H1.69c-.134 0-.242.108-.242.242v2.172H0V1.69C0 .756.756 0 1.69 0h2.172zm8.448 0C13.244 0 14 .756 14 1.69v2.172h-1.448V1.69c0-.134-.108-.242-.242-.242h-2.172V0z"
+                                                                        transform="translate(-193 -205) translate(12 104) translate(181 100) translate(0 1)" />
+                                                                </g>
+                                                            </g>
+                                                        </g>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </span>
+                                        <span class="listViewPieDataLabel">Trackers blocked</span>
+                                        <span class="viewDataNumber blue">
+                                            <!-- Number -->
+                                            0
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Donut Chart Container  -->
+
+                            <!-- Details Container -->
+                            <p class="heading">Details</p>
+                            <div class="detailsContainer">
+                                <div class="flex directionColumn whiteContainer">
+                                    <div class="flex accordionContainer directionColumn">
+                                        <div class="accordionHeader flex alignCenter acc-toggler">
+                                            <p class="subHeading">Trackers</p>
+                                        </div>
+                                        <div class="accordionBody acc-body">
+                                            <ul>
+                                                <li>facebook.com</li>
+                                                <li>facebook.com</li>
+                                                <li>facebook.com</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="flex accordionContainer directionColumn">
+                                        <div class="accordionHeader flex alignCenter acc-toggler">
+                                            <p class="subHeading">Risky Sites</p>
+                                        </div>
+                                        <div class="accordionBody acc-body">
+                                            <ul>
+                                                <li>facebook.com</li>
+                                                <li>facebook.com</li>
+                                                <li>facebook.com</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Details Container -->
+
+                        </div>
+                    </div>
+                    <!-- List View  -->
+
+                    <!-- Statistics View -->
+                    <div id="statistics" class="popupSubTabDisplay flex directionColumn flex1 hide">
+                        <div class="viewContainer flex directionColumn flex1">
+                            <!-- Graph Container -->
+                            <div class="whiteContainer statisticsGraphContainer">
+                                <div class="flex optionContainer">
+                                    <select id="statisticsType" class="flex1">
+                                        <option value="all">All</option>
+                                        <option value="rs">Risky Sites</option>
+                                        <option value="t">Tracker</option>
+                                    </select>
+                                    <select id="statisticsDayWise" class="flex1">
+                                        <option value="7">Last 7 days</option>
+                                        <option value="31">Last 4 weeks</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Graph Container -->
+
+                            <!-- Total Data Container -->
+                            <div class="whiteContainer totalDataViewContainer">
+                                <div class="totalDataViewHeader flex alignCenter">
+                                    <span>Total</span>
+                                    <span class="viewDataNumber">70</span>
+                                </div>
+                                <div class="totalDataViewBody">
+                                    <ul>
+                                        <li>
+                                            <div class="flex alignCenter">
+                                                <span class="totalDataViewBodyIcon  flex alignCenter">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+                                                        <g fill="none" fill-rule="evenodd">
+                                                            <g fill="#8995A8" fill-rule="nonzero">
+                                                                <g>
+                                                                    <g>
+                                                                        <path
+                                                                            d="M12.87 10.77C13.57 9.691 14 8.4 14 7s-.43-2.692-1.13-3.77c0 0 0-.053-.055-.053C11.577 1.238 9.423 0 7 0 4.577 0 2.423 1.238 1.185 3.123c0 0 0 .054-.054.054C.43 4.307 0 5.6 0 7s.43 2.692 1.13 3.77c0 0 0 .053.055.053C2.423 12.762 4.577 14 7 14c2.423 0 4.577-1.238 5.815-3.123.054-.054.054-.054.054-.108zM7 12.922c-.754 0-1.562-1.4-1.938-3.554 1.238-.323 2.638-.323 3.93 0-.43 2.154-1.238 3.554-1.992 3.554zM1.077 7c0-.97.215-1.885.646-2.692.646.43 1.346.807 2.1 1.077-.054.538-.108 1.077-.108 1.615s.054 1.077.108 1.615c-.754.27-1.454.647-2.1 1.077-.43-.807-.646-1.723-.646-2.692zM7 1.077c.754 0 1.562 1.4 1.938 3.554-1.238.323-2.638.323-3.93 0C5.438 2.477 6.246 1.077 7 1.077zM4.846 7c0-.43 0-.915.054-1.292.7.161 1.4.215 2.1.215.7 0 1.4-.054 2.1-.215.054.377.054.861.054 1.292 0 .43 0 .915-.054 1.292-1.346-.323-2.854-.323-4.2 0-.054-.377-.054-.861-.054-1.292zm5.277-1.615c.754-.27 1.454-.647 2.1-1.077.43.807.646 1.723.646 2.692 0 .97-.215 1.885-.646 2.692-.646-.43-1.346-.807-2.1-1.077.054-.538.108-1.077.108-1.615s-.054-1.077-.108-1.615zm1.562-1.993c-.485.377-1.077.7-1.67.916-.215-1.131-.538-2.154-1.023-2.854 1.077.377 1.993 1.023 2.693 1.938zM5.008 1.454c-.431.7-.808 1.67-1.023 2.854-.593-.216-1.185-.539-1.67-.916.7-.915 1.616-1.561 2.693-1.938zm-2.693 9.154c.485-.377 1.077-.7 1.67-.916.215 1.131.538 2.154 1.023 2.854-1.077-.377-1.993-1.023-2.693-1.938zm6.677 1.938c.431-.754.808-1.723 1.023-2.854.593.216 1.185.539 1.67.916-.7.915-1.616 1.561-2.693 1.938z"
+                                                                            transform="translate(-32 -414) translate(32 409) translate(0 5)" />
+                                                                    </g>
+                                                                </g>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                </span>
+                                                <span class="totalDataViewBodyText flex1">
+                                                    Total sites blocked
+                                                </span>
+                                                <span class="viewDataNumber green">
+                                                    23
+                                                </span>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="flex alignCenter">
+                                                <span class="totalDataViewBodyIcon flex alignCenter">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+                                                        <g fill="none" fill-rule="evenodd">
+                                                            <g fill="#8995A8" fill-rule="nonzero">
+                                                                <g>
+                                                                    <g>
+                                                                        <path
+                                                                            d="M1.448 10.138v2.172c0 .134.108.242.242.242h2.172V14H1.69C.756 14 0 13.244 0 12.31v-2.172h1.448zm12.552 0v2.172c0 .934-.756 1.69-1.69 1.69h-2.172v-1.448h2.172c.134 0 .242-.108.242-.242v-2.172H14zm-6.276-8.69v2.004c1.423.29 2.534 1.401 2.824 2.824h2.004v1.448h-2.004c-.29 1.423-1.401 2.534-2.824 2.824v2.004H6.276v-2.004c-1.423-.29-2.534-1.401-2.824-2.824H1.448V6.276h2.004c.29-1.423 1.401-2.534 2.824-2.824V1.448h1.448zM7 4.828C5.8 4.828 4.828 5.8 4.828 7c0 1.2.972 2.172 2.172 2.172C8.2 9.172 9.172 8.2 9.172 7 9.172 5.8 8.2 4.828 7 4.828zM3.862 0v1.448H1.69c-.134 0-.242.108-.242.242v2.172H0V1.69C0 .756.756 0 1.69 0h2.172zm8.448 0C13.244 0 14 .756 14 1.69v2.172h-1.448V1.69c0-.134-.108-.242-.242-.242h-2.172V0z"
+                                                                            transform="translate(-32 -457) translate(32 452) translate(0 5)" />
+                                                                    </g>
+                                                                </g>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+
+                                                </span>
+                                                <span class="totalDataViewBodyText flex1">
+                                                    Total trackers blocked
+                                                </span>
+                                                <span class="viewDataNumber blue">
+                                                    47
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Total Data Container -->
+
+                        </div>
+                    </div>
+                    <!-- Statistics View -->
+
+
+                </div>
+                <!-- Sub Tabs Display -->
+            </div>
+            <!-- Tab Reports -->
         </div>
     </main>
     <script src="./scripts/jQuery.min.js"></script>

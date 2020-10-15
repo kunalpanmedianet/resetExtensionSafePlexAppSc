@@ -7,6 +7,10 @@ const loadMainEvents = (function () {
 			const tabsToDisplay = htmlUtil(`#${currentTabAttribute}`);
 			const allDisplay = htmlUtil(`.${allDisplayElement}`);
 
+			if (allDisplayElement == 'popupMainTabDisplay') {
+				tabsToDisplay.find('[popup-subtab]:first-Child').trigger('click');
+			}
+
 			allTabs.removeClass('active');
 			currentTab.addClass('active');
 

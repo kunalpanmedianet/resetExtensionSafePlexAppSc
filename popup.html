@@ -560,11 +560,11 @@
                                     Filter Search Enabled
                                 </div>
                                 <div class="toggleWrapper">
-                                    <input checked type="checkbox" name="filterSearchToggler" class="mobileToggle" id="filterSearchToggler">
+                                    <input checked type="checkbox" name="filterSearchToggler" filter-toggle-option="filterSearchOption" class="mobileToggle" id="filterSearchToggler">
                                     <label for="filterSearchToggler"></label>
                                 </div>
                             </div>
-                            <div class="toggleContent">
+                            <div class="toggleContent" id="filterSearchOption">
                                 <div class="flex toggleContent_inner">
                                     <div class="flex1 filterSearch">
                                         Block Risky Sites
@@ -592,11 +592,11 @@
                                     Block Website
                                 </div>
                                 <div class="toggleWrapper">
-                                    <input checked type="checkbox" name="blockWebsites" class="mobileToggle" id="blockWebsites">
+                                    <input checked type="checkbox" name="blockWebsites" filter-toggle-option="blockWebsitesOption"  class="mobileToggle" id="blockWebsites">
                                     <label for="blockWebsites"></label>
                                 </div>
                             </div>
-                            <div class="toggleContent backgroundNone">
+                            <div class="toggleContent backgroundNone" id="blockWebsitesOption">
                                 <div class="flex searchQueryContent">
                                     <div class="filterSearchInputWrap">
                                         <div class="flex alignCenter">
@@ -659,5 +659,6 @@
     <script src="./scripts/util.js"></script>
     <script src="./scripts/popup.js"></script>
     <script src="./scripts/browsingData.js"></script>
+    <script src="./scripts/filterSearch.js"></script>
 </body>
 </html>

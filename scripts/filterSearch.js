@@ -13,11 +13,23 @@ const loadFilterSearchEvent = (function () {
 		});
 	}
 
+	function searchBarToggle() {
+		htmlUtil('.closeInput').on('click', function () {
+			htmlUtil('.filterSearchInputWrap').fadeOut();
+		});
+
+		htmlUtil('.searchButton').on('click', function () {
+			htmlUtil('.filterSearchInputWrap').fadeIn();
+		});
+	}
+
 	return {
-		toggler
+		toggler,
+		searchBarToggle
 	};
 })();
 
 htmlUtil(document).ready(function () {
 	loadFilterSearchEvent.toggler();
+	loadFilterSearchEvent.searchBarToggle();
 });

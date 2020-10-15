@@ -598,9 +598,12 @@
                             </div>
                             <div class="toggleContent backgroundNone" id="blockWebsitesOption">
                                 <div class="flex searchQueryContent">
-                                    <div class="filterSearchInputWrap">
+                                    <div class="filterSearchInputWrap" style="display: none;">
                                         <div class="flex alignCenter">
-                                            <input type="text" id="filterSearchInput" placeholder="Enter Url" />
+                                            <form id="blockUrlForm" class="flex1">
+                                                <input type="text" id="filterSearchInput" autofocus placeholder="Enter Url" />
+                                                <input type="submit" class="blockUrlSubmit" style="display: none;">
+                                            </form>
                                             <span class="closeInput">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="12" viewBox="0 0 11 12">
                                                     <g fill="none" fill-rule="evenodd">

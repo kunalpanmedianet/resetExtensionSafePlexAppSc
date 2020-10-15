@@ -718,12 +718,12 @@ table {
 	border: 1px solid var(--secondary);
 	border-radius: 4px;
 	background: var(--white);
-	padding: 20px 15px;
+	padding: 15px;
 	margin-top: 10px;
 }
 
 .toggleContent_inner {
-	padding: 5px 0;
+	padding: 10px 0;
 }
 
 .toggleContent.backgroundNone {

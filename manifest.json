@@ -1,0 +1,64 @@
+{
+  "background": {
+    "scripts": [
+      "libraries/punycode.js",
+      "libraries/sjcl.js",
+      "constants.js",
+      "background.js"
+    ]
+  },
+  "name": "Safeplex Search",
+  "short_name": "Safeplex Search",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://safeplexsearch.com/*"
+      ],
+      "run_at": "document_start",
+      "js": [
+        "contentScript.js"
+      ]
+    },
+    {
+      "matches": [
+        "*://search.yahoo.com/*"
+      ],
+      "js": [
+        "contentScriptSearch.js"
+      ]
+    }
+  ],
+  "description": "Easily detect harmful online threats & experience safe custom web browsing.",
+  "version": "1.0.0.6",
+  "manifest_version": 2,
+
+  "browser_action": {
+    "browser_style": true,
+    "default_title": "Octet",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "https://search.yahoo.com/*",
+    "*://safeplexsearch.com/*",
+    "*://weatherwaves.co/*",
+    "tabs",
+    "contextMenus",
+    "webRequest",
+    "webRequestBlocking",
+    "browsingData",
+    "<all_urls>"
+  ],
+  "chrome_settings_overrides": {
+    "search_provider": {
+      "name": "Web",
+      "keyword": "Safeplex Search",
+      "favicon_url": "https://safeplexsearch.com/common/images/search.ico",
+      "search_url": "https://safeplexsearch.com/hapi/omniSearch?q={searchTerms}&acTypeId=1",
+      "suggest_url": "https://safeplexsearch.com/apps/keywordSuggestion?q={searchTerms}&acTypeId=1&browser=0",
+      "encoding": "UTF-8",
+      "is_default": true
+    }
+  }
+}
+
+

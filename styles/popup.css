@@ -779,6 +779,11 @@ table {
 	left: 0;
 	top: 0;
 	display: block;
+	transition: ease all 420ms;
+}
+
+.filterSearchInputWrap.error {
+	border-color: var(--error);
 }
 
 .filterSearchInputWrap > div {

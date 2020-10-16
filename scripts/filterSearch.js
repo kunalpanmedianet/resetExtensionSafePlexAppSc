@@ -1,15 +1,4 @@
 const handleFilterSearch = (function () {
-	function handleDispatch() {
-		const event = {
-			detail: {
-				status: ''
-			}
-		};
-
-		htmlUtil();
-		// Utils.dispatchEvent();
-	}
-
 	function toggler() {
 		const toggleOption = 'filter-toggle-option';
 		htmlUtil('[' + toggleOption + ']').on('change', function () {
@@ -26,15 +15,15 @@ const handleFilterSearch = (function () {
 
 	function searchBarToggle() {
 		htmlUtil('.closeInput').on('click', function () {
-			htmlUtil('.filterSearchInputWrap').fadeOut();
+			htmlUtil('.filterSearchInputWrap').hide();
 		});
 
 		htmlUtil('.searchButton').on('click', function () {
-			htmlUtil('.filterSearchInputWrap').fadeIn();
+			htmlUtil('.filterSearchInputWrap').show();
 		});
 	}
 
-	function blockToggleHandler() {
+	function handleCustomEvents() {
 		const customEvent = {
 			detail: {
 				status: ''
@@ -42,24 +31,60 @@ const handleFilterSearch = (function () {
 		};
 
 		htmlUtil('#blockRiskSites').on('change', function () {
-			const blockSiteStatus = Object.assign({}, customEvent);
+			const riskySitesOpted = Object.assign({}, customEvent);
 
-			blockSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
-			Utils.dispatchEvent('blockSiteStatus', blockSiteStatus);
+			riskySitesOpted.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('riskySitesOpted', riskySitesOpted);
 		});
 
 		htmlUtil('#blockTrackers').on('change', function () {
-			const trackSiteStatus = Object.assign({}, customEvent);
+			const trackSitesOpted = Object.assign({}, customEvent);
 
-			trackSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
-			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
+			trackSitesOpted.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('trackSitesOpted', trackSitesOpted);
 		});
+
+		htmlUtil('#blockWebsites').on('change', function () {});
+
+		htmlUtil('.addThisWebsite').on('click', function () {
+			Utils.dispatchEvent('blackListCurrentUrl');
+		});
+
+		htmlUtil('#blockUrlForm').on('submit', function (e) {
+			e.preventDefault();
+			let url = htmlUtil('#filterSearchInput').val().trim();
+
+			try {
+				url = new URL(url);
+			} catch (e) {
+				url = null;
+			}
+
+			if ((url = !!url && new URL(url).origin)) {
+				Utils.dispatchEvent('blockUrl', {
+					detail: {
+						url
+					}
+				});
+			} else {
+				htmlUtil('.filterSearchInputWrap').addClass('error');
+			}
+		});
+
+		htmlUtil('#filterSearchInput').on('keydown', function () {
+			htmlUtil('.filterSearchInputWrap').removeClass('error');
+		});
+	}
+
+	function setViewOnLoad() {
+		// Set OnLoad View
 	}
 
 	function load() {
 		toggler();
 		searchBarToggle();
-		blockToggleHandler();
+		handleCustomEvents();
+		setViewOnLoad();
 	}
 
 	return {

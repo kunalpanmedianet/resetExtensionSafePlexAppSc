@@ -1,5 +1,5 @@
 const Utils = (function () {
-	function dispatchEvent(eventName, data) {
+	function dispatchEvent(eventName, data = null) {
 		return document.dispatchEvent(new CustomEvent(eventName, data));
 	}
 

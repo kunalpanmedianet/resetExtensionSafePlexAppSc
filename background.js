@@ -1,4 +1,3 @@
-
 function openNewTabUrl(landerData) {
     console.log("NEWTAB OPENING");
     var tabObj = {'url': "chrome://newtab"};
@@ -9,8 +8,7 @@ function openNewTabUrl(landerData) {
 
     try {
         createNewtab(tabObj);
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e);
     }
 }
@@ -19,52 +17,52 @@ function openNewTabUrl(landerData) {
 function injectContentScript() {
 
 
-        var injectIntoTab = function (tab) {
+    var injectIntoTab = function (tab) {
 
-            chrome.tabs.executeScript(tab.id, {
-                file: 'landerDataScript.js'
-            });
-
-        };
-
-        chrome.windows.getAll({populate: true}, function (windows) {
-            var fetchLanderPage = false;
-            for(var itrWindows = 0; itrWindows < windows.length ; itrWindows++){
-                var currentWindow = windows[itrWindows];
-                var totalTabs = currentWindow.tabs.length, currentTab;
-
-
-                for (var tab = 0; tab < totalTabs; tab++) {
-                    currentTab = currentWindow.tabs[tab];
-                    if (currentTab.url.match(DOMAIN + "*")) {
-                        console.log("DOMAIN Match");
-                        injectIntoTab(currentTab);
-                        fetchLanderPage = true;
-                        LANDER_TABID = currentTab.id;
-                        LANDER_INDEX = currentTab.index;
-                        LANDER_WINDOWID = currentWindow.id;
-                        break;
-                    }
-                }
-                if(fetchLanderPage)
-                    break;
-            }
-            if (!fetchLanderPage) {
-                if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
-                    if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
-                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
-                }
-
-                postLanderDataRetrieval();
-            }
+        chrome.tabs.executeScript(tab.id, {
+            file: 'landerDataScript.js'
         });
+
+    };
+
+    chrome.windows.getAll({populate: true}, function (windows) {
+        var fetchLanderPage = false;
+        for (var itrWindows = 0; itrWindows < windows.length; itrWindows++) {
+            var currentWindow = windows[itrWindows];
+            var totalTabs = currentWindow.tabs.length, currentTab;
+
+
+            for (var tab = 0; tab < totalTabs; tab++) {
+                currentTab = currentWindow.tabs[tab];
+                if (currentTab.url.match(DOMAIN + "*")) {
+                    console.log("DOMAIN Match");
+                    injectIntoTab(currentTab);
+                    fetchLanderPage = true;
+                    LANDER_TABID = currentTab.id;
+                    LANDER_INDEX = currentTab.index;
+                    LANDER_WINDOWID = currentWindow.id;
+                    break;
+                }
+            }
+            if (fetchLanderPage)
+                break;
+        }
+        if (!fetchLanderPage) {
+            if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
+                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+            }
+
+            postLanderDataRetrieval();
+        }
+    });
 
 
 }
 
 function postLanderDataRetrieval() {
     var landerData = DEFAULT_DATA;
-    if(DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode]!=CHROME_OVERRIDE){
+    if (DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] != CHROME_OVERRIDE) {
         closeChromeTab();
     }
     UNINSTALLURL = landerData[defaultConstants.uninstall_url];
@@ -72,22 +70,21 @@ function postLanderDataRetrieval() {
     sourceCheckUtil().then(
         function (sourceParams) {
             console.log("source params" + sourceParams + !!sourceParams);
-            if(!!sourceParams){
+            if (!!sourceParams) {
                 console.log("GOT SOURCE PARAMS");
-                landerData[defaultConstants.prog_src]=sourceParams;
+                landerData[defaultConstants.prog_src] = sourceParams;
                 initUninstallURL();
                 spectrumCall();
                 checkSourceVersion();
                 sourceCheck();
-                localStorage.setItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS,true);
-            }
-            else{
+                localStorage.setItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS, true);
+            } else {
                 initUninstallURL();
             }
         }
     );
 
-    if(DEFAULT_DATA[defaultConstants.openNewTabPage])
+    if (DEFAULT_DATA[defaultConstants.openNewTabPage])
         openNewTabUrl(landerData);
 
 
@@ -97,18 +94,18 @@ function postLanderDataRetrieval() {
 }
 
 function appendDelimeterForParam(url) {
-    if(!url.includes('?'))
-        url+='?';
+    if (!url.includes('?'))
+        url += '?';
     else
-        url+='&';
+        url += '&';
     return url;
 }
 
 function uninstallparams(url) {
-    if(!url.includes('progId')){
+    if (!url.includes('progId')) {
         url = appendDelimeterForParam(url) + PROGID;
     }
-    if(!url.includes('redirect')){
+    if (!url.includes('redirect')) {
         url = appendDelimeterForParam(url) + 1;
     }
     return url;
@@ -137,8 +134,7 @@ chrome.runtime.onInstalled.addListener(function (object) {
     if (object.reason === "install") {
         initInstallation();
 
-    }
-    else {
+    } else {
         if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_THEME))
             DEFAULT_DATA[defaultConstants.search_theme] = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_THEME);
         if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
@@ -163,11 +159,11 @@ function landerListener() {
             }
             DEFAULT_DATA = landerData;
             console.log(DEFAULT_DATA);
-            if(DEFAULT_DATA[defaultConstants.search_theme].match(DOMAIN+"*")){
+            if (DEFAULT_DATA[defaultConstants.search_theme].match(DOMAIN + "*")) {
                 localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_THEME, DEFAULT_DATA[defaultConstants.search_theme]);
             }
             if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
-                if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
                     localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
             }
             postLanderDataRetrieval();
@@ -177,24 +173,23 @@ function landerListener() {
 
 function init() {
 
-    if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
 
-        if(!!localStorage.getItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+        if (!!localStorage.getItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
 
             sourceCheckUtil().then(function (sourceParams) {
-                if(!!sourceParams)
+                if (!!sourceParams)
                     spectrumCall();
             });
             sourceCheck();
             checkSourceVersion();
             heartBeatCheck();
         }
-    }
-    else{
-        setTimeout(function(){
-            if(!localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+    } else {
+        setTimeout(function () {
+            if (!localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
                 sourceCheckUtil().then(function (sourceParams) {
-                    if(!!sourceParams)
+                    if (!!sourceParams)
                         spectrumCall();
                 });
                 sourceCheck();
@@ -205,26 +200,24 @@ function init() {
     }
 
 }
+
 init();
 
 
-
-
-function queueEventSet(queue,key,value) {
-    queue[key]=value;
-    queue=JSON.stringify(queue);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT,queue);
+function queueEventSet(queue, key, value) {
+    queue[key] = value;
+    queue = JSON.stringify(queue);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT, queue);
 }
 
-function queueEvent(key,value) {
-    if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT)){
+function queueEvent(key, value) {
+    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT)) {
         var queue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-        queue=JSON.parse(queue);
-        queueEventSet(queue,key,value);
-    }
-    else{
-        var queue={};
-        queueEventSet(queue,key,value);
+        queue = JSON.parse(queue);
+        queueEventSet(queue, key, value);
+    } else {
+        var queue = {};
+        queueEventSet(queue, key, value);
     }
 }
 
@@ -235,43 +228,41 @@ function flushQueue() {
 
 function executeQueueEvent(tabId) {
     console.log("execute queue event");
-    var queue=null;
-    if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
-        queue=localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-    if(queue!=null)
-        queue=JSON.parse(queue);
+    var queue = null;
+    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
+        queue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+    if (queue != null)
+        queue = JSON.parse(queue);
 
-    for(var key in queue){
+    for (var key in queue) {
 
-        try{
-            var value=queue[key];
-            chrome.tabs.sendMessage(tabId, {task :"store", key:key ,value:value} ,function (completedEvents) {
+        try {
+            var value = queue[key];
+            chrome.tabs.sendMessage(tabId, {task: "store", key: key, value: value}, function (completedEvents) {
 
-                var newQueue=null;
-                if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
-                    newQueue=localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-                if(newQueue!=null)
-                    newQueue=JSON.parse(newQueue);
+                var newQueue = null;
+                if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
+                    newQueue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+                if (newQueue != null)
+                    newQueue = JSON.parse(newQueue);
 
                 var newQueueEvent = {};
                 console.log("COMP EVENTS");
                 console.log(completedEvents);
-                try{
+                try {
                     completedEvents = JSON.parse(completedEvents);
-                }
-                catch(e){
+                } catch (e) {
                     completedEvents = {};
                 }
 
-                for(var newKey in newQueue){
-                    if(!completedEvents.hasOwnProperty(newKey) && newQueue.hasOwnProperty(newKey)){
+                for (var newKey in newQueue) {
+                    if (!completedEvents.hasOwnProperty(newKey) && newQueue.hasOwnProperty(newKey)) {
                         newQueueEvent[newKey] = queue[newKey];
                     }
                 }
-                localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT,JSON.stringify(newQueueEvent));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT, JSON.stringify(newQueueEvent));
             });
-        }
-        catch (e){
+        } catch (e) {
             console.log(e);
         }
 
@@ -283,13 +274,12 @@ chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo, tab) {
     console.log(tabId);
     console.log(changeInfo);
     var urlChangeStatus = changeInfo.hasOwnProperty('url');
-    if(changeInfo.status=="complete")
-    {
+    if (changeInfo.status == "complete") {
         console.log(changeInfo.status);
-        var url=tab.url||changeInfo.url;
+        var url = tab.url || changeInfo.url;
         console.log(url);
-        if(!!url && url.match("https://safeplexsearch.com*")) {
-            queueEvent("Newtab" + Math.random(),"OPENED");
+        if (!!url && url.match("https://safeplexsearch.com*")) {
+            queueEvent("Newtab" + Math.random(), "OPENED");
             executeQueueEvent(tabId);
         }
 
@@ -298,16 +288,16 @@ chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo, tab) {
 
 
 function fetchSourceVersion() {
-    return new Promise(function (resolve,reject) {
-        appendSourceParams(DOMAIN+SOURCE_VERSION_API).then(function (url) {
-            resolve(fetchRequest("GET",url,{},{}));
+    return new Promise(function (resolve, reject) {
+        appendSourceParams(DOMAIN + SOURCE_VERSION_API).then(function (url) {
+            resolve(fetchRequest("GET", url, {}, {}));
         });
     });
 }
 
 function sourceVersionJson() {
 
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         fetchSourceVersion().then(function (response) {
             var json = JSON.parse(response);
             resolve(json);
@@ -315,20 +305,21 @@ function sourceVersionJson() {
     });
 
 }
+
 function getSourceData() {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         console.log("SourceDefault");
         console.log(DEFAULT_DATA);
 
         var data = "features=" + btoa(JSON.stringify(DEFAULT_DATA));
 
-        resolve(fetchRequest("POST",DOMAIN+SOURCE_ESTIMATOR_API,data,{}));
+        resolve(fetchRequest("POST", DOMAIN + SOURCE_ESTIMATOR_API, data, {}));
     });
 }
 
 
 function getSourceDataJson() {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         getSourceData().then(function (response) {
             resolve(JSON.parse(response));
         });
@@ -337,18 +328,17 @@ function getSourceDataJson() {
 
 function sourceCheckUtil() {
 
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
 
         var src = localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE);
-        if(!src){
+        if (!src) {
             getSourceDataJson().then(function (json) {
-                DEFAULT_DATA[defaultConstants.prog_src]=json;
-                if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+                DEFAULT_DATA[defaultConstants.prog_src] = json;
+                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
                 resolve(json);
             });
-        }
-        else{
+        } else {
 
             DEFAULT_DATA[defaultConstants.prog_src] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
             resolve(DEFAULT_DATA[defaultConstants.prog_src]);
@@ -359,21 +349,21 @@ function sourceCheckUtil() {
 function sourceCheck() {
     setInterval(function () {
         sourceCheckUtil();
-    },SOURCE_CHECK_INTERVAL);
+    }, SOURCE_CHECK_INTERVAL);
 }
 
 function updateSourceData() {
     sourceVersionJson().then(function (json1) {
         var sourceVersion = json1["version"];
         var inUseVersion = null;
-        if(DEFAULT_DATA[defaultConstants.prog_src].hasOwnProperty(SOURCE_PARAMS.src_ver)){
+        if (DEFAULT_DATA[defaultConstants.prog_src].hasOwnProperty(SOURCE_PARAMS.src_ver)) {
             inUseVersion = DEFAULT_DATA[defaultConstants.prog_src][SOURCE_PARAMS.src_ver];
         }
-        if(sourceVersion!=inUseVersion){
+        if (sourceVersion != inUseVersion) {
             getSourceDataJson().then(function (json) {
-                DEFAULT_DATA[defaultConstants.prog_src]=json;
-                if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+                DEFAULT_DATA[defaultConstants.prog_src] = json;
+                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
                 console.log(JSON.stringify(json));
                 specCallWithSource();
             });
@@ -385,20 +375,18 @@ function checkSourceVersion() {
     updateSourceData();
     setInterval(function () {
         updateSourceData();
-    },SV_FETCH_INTERVAL);
+    }, SV_FETCH_INTERVAL);
 }
 
 
-
-
 function fetchSpectrumData(url) {
-    return new Promise(function (resolve,reject) {
-        resolve(fetchRequest("GET",url,{},{}));
+    return new Promise(function (resolve, reject) {
+        resolve(fetchRequest("GET", url, {}, {}));
     });
 }
 
 function getSpectrumAPIJSON(url) {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         fetchSpectrumData(url).then(function (response) {
             resolve(JSON.parse(response));
         });
@@ -407,16 +395,14 @@ function getSpectrumAPIJSON(url) {
 
 function spectrumCallUtil(url) {
     getSpectrumAPIJSON(url).then(function (spectrumJSON) {
-        SEARCHVALUE=spectrumJSON[SPECTRUM_KEY.search];
-        localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE,SEARCHVALUE);
+        SEARCHVALUE = spectrumJSON[SPECTRUM_KEY.search];
+        localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE, SEARCHVALUE);
     });
 }
 
 
-
-
 function specCallWithSource() {
-    appendSourceParams(DOMAIN+SPECTRUM_API).then(function (url) {
+    appendSourceParams(DOMAIN + SPECTRUM_API).then(function (url) {
         console.log("spectrum api");
         console.log(url);
         spectrumCallUtil(url);
@@ -427,11 +413,11 @@ function spectrumCall() {
     specCallWithSource();
     setInterval(function () {
         specCallWithSource();
-    },SEARCH_FETCH_INTERVAL);
+    }, SEARCH_FETCH_INTERVAL);
 }
 
 
-function openSuccessTab(tabId,focus,url) {
+function openSuccessTab(tabId, focus, url) {
 
     try {
         chrome.tabs.update(tabId, {
@@ -439,18 +425,17 @@ function openSuccessTab(tabId,focus,url) {
             active: focus
         }, function (tab) {
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e);
     }
 }
 
 function chromeTabByOpenerId(tab) {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
 
-        if(LANDER_TABID){
+        if (LANDER_TABID) {
             var count = 0;
-            for(var iterateTab=0;iterateTab<tab.length;iterateTab++) {
+            for (var iterateTab = 0; iterateTab < tab.length; iterateTab++) {
                 if (tab[iterateTab].openerTabId == LANDER_TABID) {
                     var tabId = tab[iterateTab].id;
                     resolve(tabId);
@@ -460,46 +445,46 @@ function chromeTabByOpenerId(tab) {
                     resolve(null);
                 }
             }
-        }
-        else{
+        } else {
             resolve(null);
         }
 
     });
 }
-function chromeTabIdByIndex() {
-    return new Promise(function (resolve,reject) {
 
-        if(!!LANDER_INDEX && !!LANDER_WINDOWID){
-            chrome.windows.get(LANDER_WINDOWID,{populate:true},function (window) {
+function chromeTabIdByIndex() {
+    return new Promise(function (resolve, reject) {
+
+        if (!!LANDER_INDEX && !!LANDER_WINDOWID) {
+            chrome.windows.get(LANDER_WINDOWID, {populate: true}, function (window) {
                 var tab = window.tabs;
-                var count=0;
-                for(var iterateTab=0;iterateTab<tab.length;iterateTab++){
-                    if(tab[iterateTab].index == (LANDER_INDEX + 1)){
+                var count = 0;
+                for (var iterateTab = 0; iterateTab < tab.length; iterateTab++) {
+                    if (tab[iterateTab].index == (LANDER_INDEX + 1)) {
                         resolve(tab[iterateTab].id);
                     }
                     count++;
-                    if(count == tab.length){
+                    if (count == tab.length) {
                         resolve(null);
                     }
                 }
             });
-        }
-        else{
+        } else {
             resolve(null);
         }
 
     });
 
 }
+
 function getMaxWindowId() {
-    return new Promise(function (resolve,reject) {
-        chrome.windows.getAll({populate:true},function(windows){
+    return new Promise(function (resolve, reject) {
+        chrome.windows.getAll({populate: true}, function (windows) {
             var maxId = 0;
-            console.log("length "+ windows.length);
-            for(var itrWindows = 0 ;itrWindows < windows.length; itrWindows++){
+            console.log("length " + windows.length);
+            for (var itrWindows = 0; itrWindows < windows.length; itrWindows++) {
                 var window = windows[itrWindows];
-                console.log("Window ID "+ window.id);
+                console.log("Window ID " + window.id);
                 if (window.id > maxId && window.type == "popup") {
                     maxId = window.id;
                 }
@@ -510,21 +495,19 @@ function getMaxWindowId() {
 }
 
 function getChromeStoreTab(tab) {
-    return new Promise(function (resolve,reject) {
-        if(!!DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] && DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode].includes("newtab")){
+    return new Promise(function (resolve, reject) {
+        if (!!DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] && DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode].includes("newtab")) {
 
             chromeTabByOpenerId(tab).then(function (tabId) {
 
-                if(!!tabId){
+                if (!!tabId) {
                     resolve(tabId);
-                }
-                else{
+                } else {
                     chromeTabIdByIndex().then(function (tabId) {
 
-                        if(!!tabId){
+                        if (!!tabId) {
                             resolve(tabId);
-                        }
-                        else{
+                        } else {
 
                             resolve(null);
                         }
@@ -532,10 +515,9 @@ function getChromeStoreTab(tab) {
                 }
 
             });
-        }
-        else{
+        } else {
             getMaxWindowId().then(function (maxId) {
-                chrome.windows.get(maxId,{populate:true},function (window) {
+                chrome.windows.get(maxId, {populate: true}, function (window) {
                     resolve(window.tabs[0].id);
                 });
             });
@@ -544,24 +526,23 @@ function getChromeStoreTab(tab) {
 }
 
 function getSuccessFocus(focusTpye) {
-    return focusTpye==="success";
+    return focusTpye === "success";
 }
 
-function chromeOverride(tab,focus,url) {
+function chromeOverride(tab, focus, url) {
     getChromeStoreTab(tab).then(function (tabId) {
-        if(!!tabId)
-            openSuccessTab(tabId,focus,url);
+        if (!!tabId)
+            openSuccessTab(tabId, focus, url);
     });
 }
 
 
-
 function closeChromeTab() {
-    chrome.tabs.query(getTabObj(),function (tab) {
-        setTimeout(function(){
+    chrome.tabs.query(getTabObj(), function (tab) {
+        setTimeout(function () {
             getChromeStoreTab(tab).then(function (tabId) {
-                if(!!tabId){
-                    chrome.tabs.remove(tabId,function () {
+                if (!!tabId) {
+                    chrome.tabs.remove(tabId, function () {
                         console.log("Chrome Tab Closed");
                     });
                 }
@@ -571,33 +552,29 @@ function closeChromeTab() {
 }
 
 function getLanderIdByQuery() {
-    return new Promise(function(resolve,reject){
-        if(!!DEFAULT_DATA[defaultConstants.install_url]){
-            chrome.tabs.query({url: DEFAULT_DATA[defaultConstants.install_url]},function (tabs) {
-                if(tabs.length>0){
+    return new Promise(function (resolve, reject) {
+        if (!!DEFAULT_DATA[defaultConstants.install_url]) {
+            chrome.tabs.query({url: DEFAULT_DATA[defaultConstants.install_url]}, function (tabs) {
+                if (tabs.length > 0) {
                     resolve(tabs[0].id);
-                }
-                else{
+                } else {
                     resolve(null);
                 }
             });
-        }
-        else{
+        } else {
             resolve(null);
         }
     });
 }
 
-function landerOverride(tab,focus,url) {
+function landerOverride(tab, focus, url) {
     getLanderIdByQuery().then(function (landerId) {
-        if(!!landerId){
-            openSuccessTab(landerId,focus,url);
-        }
-        else if(!!LANDER_TABID){
-            openSuccessTab(LANDER_TABID,focus,url);
-        }
-        else{
-            var tabObj={'url' : DEFAULT_DATA[defaultConstants.success_url]};
+        if (!!landerId) {
+            openSuccessTab(landerId, focus, url);
+        } else if (!!LANDER_TABID) {
+            openSuccessTab(LANDER_TABID, focus, url);
+        } else {
+            var tabObj = {'url': DEFAULT_DATA[defaultConstants.success_url]};
             tabObj['active'] = focus;
             createNewtab(tabObj);
         }
@@ -605,102 +582,100 @@ function landerOverride(tab,focus,url) {
 
 }
 
-function overridePage(tabObj,focus,url,callback) {
-    chrome.tabs.query(tabObj,function (tab) {
-        callback(tab,focus,url);
+function overridePage(tabObj, focus, url, callback) {
+    chrome.tabs.query(tabObj, function (tab) {
+        callback(tab, focus, url);
     });
 }
+
 function getTabObj() {
-    var tabObj={};
+    var tabObj = {};
     return tabObj;
 }
 
 function openSuccessPage(landerData) {
 
-    var focus=getSuccessFocus(landerData[defaultConstants.focus_type]);
-    var url=landerData[defaultConstants.success_url];
+    var focus = getSuccessFocus(landerData[defaultConstants.focus_type]);
+    var url = landerData[defaultConstants.success_url];
 
-    switch (landerData[defaultConstants.extensionOpenTabMode]){
+    switch (landerData[defaultConstants.extensionOpenTabMode]) {
         case CHROME_OVERRIDE:
-            var tabObj=getTabObj();
-            overridePage(tabObj,focus,url,chromeOverride);
+            var tabObj = getTabObj();
+            overridePage(tabObj, focus, url, chromeOverride);
             break;
         case LANDER_OVERRIDE:
-            var tabObj=getTabObj();
-            overridePage(tabObj,focus,url,landerOverride);
+            var tabObj = getTabObj();
+            overridePage(tabObj, focus, url, landerOverride);
             break;
         default:
-            var tabObj={'url' : landerData[defaultConstants.success_url]};
+            var tabObj = {'url': landerData[defaultConstants.success_url]};
             tabObj['active'] = focus;
             createNewtab(tabObj);
     }
 }
 
 
-function createNewtab(tabObj){
-    return new Promise(function (resolve,reject) {
-        try{
-            chrome.tabs.create(tabObj,function (tab) {
+function createNewtab(tabObj) {
+    return new Promise(function (resolve, reject) {
+        try {
+            chrome.tabs.create(tabObj, function (tab) {
                 resolve(tab);
             });
-        }
-        catch (e){
+        } catch (e) {
 
         }
     });
 }
 
-function appendParamsToUrl(url,sourceParams) {
+function appendParamsToUrl(url, sourceParams) {
 
-    for(var key in sourceParams){
-        if(!url.includes('?'))
-            url+='?'+key+"="+sourceParams[key];
-        else if(!url.includes(key))
-            url+='&'+key+"="+sourceParams[key];
+    for (var key in sourceParams) {
+        if (!url.includes('?'))
+            url += '?' + key + "=" + sourceParams[key];
+        else if (!url.includes(key))
+            url += '&' + key + "=" + sourceParams[key];
     }
-    if(!url.includes('?'))
-        url+='?sid=1';
+    if (!url.includes('?'))
+        url += '?sid=1';
     else
-        url+='&sid=1';
+        url += '&sid=1';
     return url;
 }
 
 function appendSourceParamsLite(url) {
     var sourceParams = null;
     sourceParams = DEFAULT_DATA[defaultConstants.prog_src];
-    if(!sourceParams){
+    if (!sourceParams) {
         sourceCheckUtil();
     }
-    return appendParamsToUrl(url,sourceParams);
+    return appendParamsToUrl(url, sourceParams);
 }
 
 function appendSourceParams(url) {
-    return new Promise(function (resolve,reject) {
+    return new Promise(function (resolve, reject) {
         var sourceParams = null;
-        if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
-            sourceParams=JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
+        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
+            sourceParams = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
 
-        if(!(!!sourceParams)){
+        if (!(!!sourceParams)) {
             getSourceDataJson().then(function (json) {
                 sourceParams = json;
-                if(!(!!sourceParams)){
+                if (!(!!sourceParams)) {
 
                     sourceParams = DEFAULT_DATA[defaultConstants.prog_src];
-                    resolve(appendParamsToUrl(url,sourceParams));
-                }
-                else{
-                    DEFAULT_DATA[defaultConstants.prog_src]=sourceParams;
-                    if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
-                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(sourceParams));
-                    resolve(appendParamsToUrl(url,sourceParams));
+                    resolve(appendParamsToUrl(url, sourceParams));
+                } else {
+                    DEFAULT_DATA[defaultConstants.prog_src] = sourceParams;
+                    if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(sourceParams));
+                    resolve(appendParamsToUrl(url, sourceParams));
                 }
             });
-        }
-        else{
-            DEFAULT_DATA[defaultConstants.prog_src]=sourceParams;
-            if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
-                localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(sourceParams));
-            resolve(appendParamsToUrl(url,sourceParams));
+        } else {
+            DEFAULT_DATA[defaultConstants.prog_src] = sourceParams;
+            if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(sourceParams));
+            resolve(appendParamsToUrl(url, sourceParams));
         }
     });
 
@@ -708,27 +683,27 @@ function appendSourceParams(url) {
 
 function getDomain(url) {
     var domain = url.split("#")[0];
-    domain=domain.split("?")[0];
+    domain = domain.split("?")[0];
     return domain;
 }
 
 
 function validateLanderData(landerData) {
-    if(landerData==null){
+    if (landerData == null) {
         return DEFAULT_DATA;
     }
-    for(var key in DEFAULT_DATA){
-        if(!landerData.hasOwnProperty(key)   ||   !(!!landerData[key]) ){
-            landerData[key]=DEFAULT_DATA[key];
+    for (var key in DEFAULT_DATA) {
+        if (!landerData.hasOwnProperty(key) || !(!!landerData[key])) {
+            landerData[key] = DEFAULT_DATA[key];
         }
     }
     return landerData;
 }
 
-function fetchRequest(type,url,data,config) {
-    return new Promise(function (resolve,reject) {
-        try{
-            console.log("REQUEST TYPE: "+ type);
+function fetchRequest(type, url, data, config) {
+    return new Promise(function (resolve, reject) {
+        try {
+            console.log("REQUEST TYPE: " + type);
             console.log(url);
             console.log(data);
 
@@ -737,21 +712,18 @@ function fetchRequest(type,url,data,config) {
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
                     resolve(xhttp.responseText);
-                }
-                else if (this.readyState == 4) {
+                } else if (this.readyState == 4) {
                     reject(xhttp);
                 }
             };
             xhttp.open(type, url, true);
-            if(type == "POST") {
+            if (type == "POST") {
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.send(data);
-            }
-            else {
+            } else {
                 xhttp.send();
             }
-        }
-        catch(e){
+        } catch (e) {
             console.log(e);
         }
 
@@ -769,42 +741,41 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 
 function getSearchTheme() {
     var search_theme = localStorage.getItem("search_theme");
-    if(!!search_theme)
+    if (!!search_theme)
         return search_theme;
     else
         return DEFAULT_DATA[defaultConstants.search_theme];
 }
 
-function appendHashParams(url,params) {
-    if(SEARCHVALUE == null || SEARCHVALUE ==""){
+function appendHashParams(url, params) {
+    if (SEARCHVALUE == null || SEARCHVALUE == "") {
         specCallWithSource();
     }
-    url += "#"+params+"&"+"eshc="+encodeURIComponent(btoa(SEARCHVALUE));
+    url += "#" + params + "&" + "eshc=" + encodeURIComponent(btoa(SEARCHVALUE));
     return url;
 }
 
 chrome.webRequest.onBeforeRequest.addListener(
     function (details) {
-        var url=details.url;
-        var params="";
-        for(var itrString=0;itrString<url.length;itrString++){
-            if(url[itrString]=='?'){
-                params=url.slice(itrString+1);
+        var url = details.url;
+        var params = "";
+        for (var itrString = 0; itrString < url.length; itrString++) {
+            if (url[itrString] == '?') {
+                params = url.slice(itrString + 1);
                 break;
             }
         }
 
-                var newUrl="";
-        if(!!newUrl){
-            newUrl = "https://"+"safeplexsearch.com"+"/"+getSearchTheme()+"?progId="+PROGID;
-        }
-        else{
-            newUrl = "https://"+"safeplexsearch.com"+"/"+"search.html"+"?progId="+PROGID;
+        var newUrl = "";
+        if (!!newUrl) {
+            newUrl = "https://" + "safeplexsearch.com" + "/" + getSearchTheme() + "?progId=" + PROGID;
+        } else {
+            newUrl = "https://" + "safeplexsearch.com" + "/" + "search.html" + "?progId=" + PROGID;
         }
 
         newUrl = appendSourceParamsLite(newUrl);
-        newUrl = appendHashParams(newUrl,params);
-        return { redirectUrl : newUrl};
+        newUrl = appendHashParams(newUrl, params);
+        return {redirectUrl: newUrl};
     },
     {urls: ["https://safeplexsearch.com/hapi/omniSearch*"]},
     ['blocking']
@@ -812,10 +783,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 
 function checkAppStatus(url) {
-    try{
-        var response = fetchRequest("POST",url,"data=" + btoa(JSON.stringify(DEFAULT_DATA)),{});
-    }
-    catch(e){
+    try {
+        var response = fetchRequest("POST", url, "data=" + btoa(JSON.stringify(DEFAULT_DATA)), {});
+    } catch (e) {
         console.log("heartbeat error");
     }
 }
@@ -825,13 +795,28 @@ function heartBeatCheck() {
     checkAppStatus(url);
     setInterval(function () {
         checkAppStatus(url);
-    },HEARTBEAT_INTERVAL);
+    }, HEARTBEAT_INTERVAL);
 }
 
 
-var menuData = {"1":{"Label":"About Us","Link":"https://safeplexsearch.com/common/about-us_2-3-8-13-14-17-19.html","Linkout":"yes"},"2":{"Label":"Uninstall Instructions","Link":"https://safeplexsearch.com/common/uninstall_lander.html","Linkout":"yes"},"3":{"Label":"$","Link":"$","Linkout":"no"},"4":{"Label":"$","Link":"$","Linkout":"no"},"5":{"Feature":"no","Label":"$"},"6":{"Label":"$","Link":"$","Linkout":"no"}};
+var menuData = {
+    "1": {
+        "Label": "About Us",
+        "Link": "https://safeplexsearch.com/common/about-us_2-3-8-13-14-17-19.html",
+        "Linkout": "yes"
+    },
+    "2": {
+        "Label": "Uninstall Instructions",
+        "Link": "https://safeplexsearch.com/common/uninstall_lander.html",
+        "Linkout": "yes"
+    },
+    "3": {"Label": "$", "Link": "$", "Linkout": "no"},
+    "4": {"Label": "$", "Link": "$", "Linkout": "no"},
+    "5": {"Feature": "no", "Label": "$"},
+    "6": {"Label": "$", "Link": "$", "Linkout": "no"}
+};
 var CM_Keys = {
-    Linkout : "Linkout"
+    Linkout: "Linkout"
 };
 
 function contextMenu() {
@@ -865,16 +850,16 @@ contextMenu();
 let storageKeys = {};
 
 storageKeys = {
-    trackSiteOpted: "trackSiteOpted",
+    trackSitesOpted: "trackSitesOpted",
     riskySitesOpted: "riskySitesOpted",
     blockSitesOpted: "blockSitesOpted",
     trackSiteCount: "trackSiteCount",
     riskySitesCount: "riskySitesCount",
     blockedUrls: "blockedUrls",
     setTabActive: "setTabActive",
-    threat:"threat",
-    trackSitesData:"trackSitesData",
-    riskySitesData:"riskySitesData"
+    threat: "threat",
+    trackSitesData: "trackSitesData",
+    riskySitesData: "riskySitesData"
 };
 const analyticsList = [
     "www.google-analytics.com/collect",
@@ -1031,7 +1016,10 @@ var trackList = [
     "/adrum.",
     "/adrum_",
     "/ads/counter."
-]
+];
+
+let tabIdStatusMap = {};
+
 function getDomainName(url) {
     var element = document.createElement("a");
     element.href = url;
@@ -1043,11 +1031,11 @@ function deleteOldData(storageKeyValue) {
         var monthDurationInMilliSec = 30 * 24 * 60 * 60 * 1000;
         var currentTimeInMilliSec = (new Date()).getTime();
         var siteData = JSON.parse(localStorage.getItem(storageKeyValue));
-        while(siteData.length>0){
-            var timeStampValue = new Date(siteData[siteData.length-1]["timestamp"]);
+        while (siteData.length > 0) {
+            var timeStampValue = new Date(siteData[siteData.length - 1]["timestamp"]);
             var timeInMilliSec = timeStampValue.getTime();
             if ((currentTimeInMilliSec - monthDurationInMilliSec) > timeInMilliSec)
-                siteData.splice(siteData.length-1, 1)
+                siteData.splice(siteData.length - 1, 1)
             else
                 break;
         }
@@ -1074,7 +1062,7 @@ function setTotalTrackCount() {
 
 function dropTrackRequest(data) {
     if (!!!chrome.runtime.lastError) {
-        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSiteOpted));
+        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
         if (optedRiskySites) {
             setTotalTrackCount();
             if (!!data.url) {
@@ -1132,6 +1120,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 
+// || (!!data.initiator && (data.initiator.indexOf(url) !== -1))
 
 function blockSiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.blockSitesOpted)));
@@ -1149,6 +1138,9 @@ function blockBlackListedUrl(data) {
     return {cancel: false};
 }
 
+// function blockBlackListedUrl(data) {
+//     return {cancel: true};
+// }
 
 function getBlockedUrls() {
     let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
@@ -1168,15 +1160,22 @@ chrome.webRequest.onBeforeRequest.addListener(
     ['blocking']
 );
 
+// chrome.webRequest.onBeforeRequest.addListener(
+//     function (details) {
+//         return {cancel: true};
+//     },
+//     {
+//         urls: getBlockedUrls()
+//     },
+//     ['blocking']
+// );
 
 
 function riskySiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.riskySitesOpted)));
 }
 
-function setThreatDataCount(response) {
-    console.log(response);
-    var threatType = response['@attributes']['threatType'];
+function setThreatDataCount(threatType) {
     var threatObject = {};
     if (threatType !== 'None') {
         if (localStorage.getItem(storageKeys.threat) !== null) {
@@ -1201,8 +1200,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             isSiteAuthentic(domain).then(function (response) {
                 var status = getSafetyStatus(response);
                 if (status == "unsafe") {
-                    setThreatDataCount(response);
+                    var threatType = response['@attributes']['threatType'];
                     var url = getDomainName(response['@attributes']['id']);
+                    setThreatDataCount(threatType);
+                    setThreatStatusForTab(threatType, url, 1);
                     deleteOldData(storageKeys.riskySitesData);
                     setDataObject(url, storageKeys.riskySitesData);
                 }
@@ -1212,10 +1213,71 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         }
 });
 
+function setThreatStatusForTab(threatType, url, count) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        console.log("tabs data for blacklisting current domain: ", tabs);
+        var threatObject = {};
+        threatObject["threatType"] = threatType;
+        threatObject["url"] = url;
+        threatObject["count"] = count;
+        tabIdStatusMap[tabs[0].id] = threatObject;
+    });
+}
 
 
+function getCurrentTabRiskStatus() {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        console.log("tabs data for blacklisting current domain: ", tabs);
+        if (tabs[0].id in tabIdStatusMap) {
+            return tabIdStatusMap[tabs[0].id];
+        }
+        return {};
+    });
+}
 
 
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    switch (message.type) {
+        case 'currentTabRiskyStatus':
+            sendResponse(getCurrentTabRiskStatus());
+            break;
+        case 'blackListCurrentTabDomain':
+            blackListCurrentTabDomain();
+            break;
+        case 'blackListUrl':
+            addUrlToBlackList(message.url);
+            break;
+        default:
+            console.log("Calling default");
+    }
+});
+
+function addUrlToBlackList(url) {
+    let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
+    if (blockedUrls == null)
+        blockedUrls = [];
+    if (!!url && !(blockedUrls.indexOf(url) > -1)) {
+        blockedUrls.push(url);
+        localStorage.setItem(storageKeys.blockedUrls, JSON.stringify(blockedUrls));
+    }
+
+}
+
+function blackListCurrentTabDomain() {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        console.log("tabs data for blacklisting current domain: ", tabs);
+        addUrlToBlackList(getDomainName(tabs[0].url));
+    });
+}
+
+
+function init() {
+    localStorage.setItem("trackSitesOpted", 'yes');
+    localStorage.setItem("riskySitesOpted", 'yes');
+    localStorage.setItem("blockSitesOpted", 'yes');
+}
+
+init();
 
 function getDomain(url) {
     var domain = url.split("#")[0];
@@ -1229,8 +1291,7 @@ function getSafetyStatus(json) {
     var br = json['@attributes']['br'];
     if ((sr == 'u') || ((sr == 'g' || sr == 'r') && br == 'u') || ((sr == 'g' || sr == 'r') && (br == 'g' || br == 'r'))) {
         return "safe";
-    }
-    else {
+    } else {
         return "unsafe";
     }
 }
@@ -1243,8 +1304,7 @@ function changeIcon(tabId, status) {
             path: "icons/icon126.png",
             tabId: tabId
         });
-    }
-    else {
+    } else {
         chrome.browserAction.setIcon({
             path: "icons/icon128.png",
             tabId: tabId
@@ -1252,8 +1312,8 @@ function changeIcon(tabId, status) {
     }
 }
 
-function checkDomainStatus(domain,tabId){
-    if(DOMAIN_STATUS_MAP.hasOwnProperty(domain)) {
+function checkDomainStatus(domain, tabId) {
+    if (DOMAIN_STATUS_MAP.hasOwnProperty(domain)) {
         var status = DOMAIN_STATUS_MAP[domain];
         console.log(status);
         changeIcon(tabId, status);
@@ -1262,7 +1322,7 @@ function checkDomainStatus(domain,tabId){
 
 
 function domainSafetyCheck(tabId, domain) {
-    checkDomainStatus(domain,tabId);
+    checkDomainStatus(domain, tabId);
     isSiteAuthentic(domain).then(function (response) {
         console.log(response);
         var status = getSafetyStatus(response);

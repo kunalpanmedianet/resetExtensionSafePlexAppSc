@@ -15,7 +15,7 @@ chrome.runtime.sendMessage({type: "popupHandshake"}, function () {
 let storageKeys = {};
 
 storageKeys = {
-    trackSiteOpted: "trackSiteOpted",
+    trackSitesOpted: "trackSitesOpted",
     riskySitesOpted: "riskySitesOpted",
     blockSitesOpted: "blockSitesOpted",
     trackSiteCount: "trackSiteCount",
@@ -64,7 +64,7 @@ document.addEventListener('trackSiteStatus', function (e) {
 
 function setTrackSiteStatus(e) {
     let details = (e || {})["detail"] || {};
-    localStorage.setItem(storageKeys.trackSiteOpted, details['status']);
+    localStorage.setItem(storageKeys.trackSitesOpted, details['status']);
 }
 
 
@@ -78,7 +78,7 @@ function setRiskySiteStatus(e) {
 }
 
 
-document.addEventListener('blockSites', function (e) {
+document.addEventListener('blockSiteStatus', function (e) {
     setBlockSiteStatus(e);
 });
 
@@ -95,13 +95,10 @@ document.addEventListener('blockUrl', function (e) {
 function blockUrl(e) {
     let details = (e || {})["detail"] || {};
     let url = details['url'];
-    let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
-    if (blockedUrls == null)
-        blockedUrls = [];
-    if (!!url && !(blockedUrls.indexOf(url) > -1)) {
-        blockedUrls.push(url);
-        localStorage.setItem(storageKeys.blockedUrls, JSON.stringify(blockedUrls));
-    }
+    chrome.runtime.sendMessage({type: 'blackListUrl',url:url},
+        function (response) {
+            console.log('Response: ', response);
+        });
 };
 
 
@@ -109,7 +106,9 @@ document.addEventListener('deleteUrl', function (e) {
     deleteUrlFromBlackList(e);
 });
 
-function deleteUrlFromBlackList(url) {
+function deleteUrlFromBlackList(e) {
+    let details = (e || {})["detail"] || {};
+    let url = details['url'];
     let blackListedDomain = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
     if (!!blackListedDomain && blackListedDomain.indexOf(url) > -1) {
         blackListedDomain.splice(blackListedDomain.indexOf(url), 1);
@@ -117,7 +116,7 @@ function deleteUrlFromBlackList(url) {
     localStorage.setItem(storageKeys.blockedUrls, JSON.stringify(blackListedDomain));
 }
 
-document.addEventListener('blackListCurrentUrl', function (e) {
+document.addEventListener('addThisWebsite', function (e) {
     blackListCurrentTabUrl(e);
 });
 
@@ -128,22 +127,22 @@ function getDomainFromURL(url) {
 }
 
 function blackListCurrentTabUrl() {
-    chrome.tabs.getCurrent(function (tab) {
+    chrome.runtime.sendMessage({type: 'blackListCurrentTabDomain'},
+        function (response) {
+            console.log('Response: ', response);
+        });
+}
+
+chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'},
+    function (response) {
         document.dispatchEvent(
-            new CustomEvent('blockUrl', {
+            new CustomEvent('currentTabRiskyStatus', {
                 detail: {
-                    url: getDomainFromURL(tab.url)
+                    threatData: response
                 }
             })
         );
     });
-}
 
 
-function init() {
-    localStorage.setItem(storageKeys.trackSiteOpted, 'yes');
-    localStorage.setItem(storageKeys.riskySitesOpted, 'yes');
-    localStorage.setItem(storageKeys.blockSitesOpted, 'yes');
-}
 
-init();

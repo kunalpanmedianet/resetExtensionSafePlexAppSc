@@ -44,10 +44,12 @@ const handleFilterSearch = (function () {
 			Utils.dispatchEvent('trackSitesOpted', trackSitesOpted);
 		});
 
-		htmlUtil('#blockWebsites').on('change', function () {});
+		htmlUtil('#blockWebsites').on('change', function () {
+			Utils.dispatchEvent('blackListCurrentUrl');
+		});
 
 		htmlUtil('.addThisWebsite').on('click', function () {
-			Utils.dispatchEvent('blackListCurrentUrl');
+			Utils.dispatchEvent('addThisWebsite');
 		});
 
 		htmlUtil('#blockUrlForm').on('submit', function (e) {

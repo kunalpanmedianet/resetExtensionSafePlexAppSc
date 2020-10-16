@@ -126,6 +126,7 @@ table {
 * {
 	font-family: 'Inter', Arial, Helvetica, sans-serif;
 	box-sizing: border-box;
+	user-select: none;
 }
 
 :root {

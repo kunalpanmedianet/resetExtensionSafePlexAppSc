@@ -133,17 +133,20 @@ function blackListCurrentTabUrl() {
         });
 }
 
-chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'},
-    function (response) {
-    console.log("response for threat change red:",response);
+chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'}, function (response) {});
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message.type === 'sendRiskStatusToPopup') {
+        console.log("response for threat change red:",message.threatStatus);
         document.dispatchEvent(
-            new CustomEvent('currentTabRiskyStatus', {
+            new CustomEvent('currentDomainStatus', {
                 detail: {
-                    threatData: response
+                    threatData: message.threatStatus
                 }
             })
         );
-    });
+    }
+});
 
 
 

@@ -1221,21 +1221,20 @@ function setThreatStatusForTab(threatType, url, count) {
         threatObject["url"] = url;
         threatObject["count"] = count;
         tabIdStatusMap[tabs[0].id] = threatObject;
-        console.log("tabIdStatusMap Id status map: ",tabIdStatusMap);
+        console.log("tabIdStatusMap Id status map: ", tabIdStatusMap);
     });
 }
 
 
-function getCurrentTabRiskStatus(callback) {
+function getCurrentTabRiskStatus() {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        console.log("tabs data for blacklisting current domain: ", tabs);
-        if (tabs[0].id in tabIdStatusMap) {
-            console.log("tabId found map: ",tabs[0].id);
-            console.log("threat type data for website: ",tabIdStatusMap[tabs[0].id]);
-            callback(tabIdStatusMap[tabs[0].id]);
-        }
-        console.log("no threat data for website");
-        callback({});
+        var status = {};
+        if (tabs[0].id in tabIdStatusMap)
+            status = tabIdStatusMap[tabs[0].id];
+        chrome.runtime.sendMessage({type: 'sendRiskStatusToPopup', threatStatus: status},
+            function (response) {
+                console.log("response:", response);
+            });
     });
 }
 
@@ -1243,7 +1242,7 @@ function getCurrentTabRiskStatus(callback) {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     switch (message.type) {
         case 'currentTabRiskyStatus':
-            getCurrentTabRiskStatus(sendResponse);
+            getCurrentTabRiskStatus();
             break;
         case 'blackListCurrentTabDomain':
             blackListCurrentTabDomain();

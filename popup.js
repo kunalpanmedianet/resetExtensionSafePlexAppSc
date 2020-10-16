@@ -135,7 +135,6 @@ function blackListCurrentTabUrl() {
 
 chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'},
     function (response) {
-    console.log("response for threat change red:",response);
         document.dispatchEvent(
             new CustomEvent('currentTabRiskyStatus', {
                 detail: {

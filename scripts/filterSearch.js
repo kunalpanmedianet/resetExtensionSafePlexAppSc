@@ -1,4 +1,15 @@
-const loadFilterSearchEvent = (function () {
+const handleFilterSearch = (function () {
+	function handleDispatch() {
+		const event = {
+			detail: {
+				status: ''
+			}
+		};
+
+		htmlUtil();
+		// Utils.dispatchEvent();
+	}
+
 	function toggler() {
 		const toggleOption = 'filter-toggle-option';
 		htmlUtil('[' + toggleOption + ']').on('change', function () {
@@ -23,13 +34,39 @@ const loadFilterSearchEvent = (function () {
 		});
 	}
 
+	function blockToggleHandler() {
+		const customEvent = {
+			detail: {
+				status: ''
+			}
+		};
+
+		htmlUtil('#blockRiskSites').on('change', function () {
+			const blockSiteStatus = Object.assign({}, customEvent);
+
+			blockSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('blockSiteStatus', blockSiteStatus);
+		});
+
+		htmlUtil('#blockTrackers').on('change', function () {
+			const trackSiteStatus = Object.assign({}, customEvent);
+
+			trackSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
+		});
+	}
+
+	function load() {
+		toggler();
+		searchBarToggle();
+		blockToggleHandler();
+	}
+
 	return {
-		toggler,
-		searchBarToggle
+		load
 	};
 })();
 
 htmlUtil(document).ready(function () {
-	loadFilterSearchEvent.toggler();
-	loadFilterSearchEvent.searchBarToggle();
+	handleFilterSearch.load();
 });

@@ -1252,7 +1252,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             getCurrentTabRiskStatus(sendResponse);
             break;
         case 'blackListCurrentTabDomain':
-            blackListCurrentTabDomain();
+            blackListCurrentTabDomain(sendResponse);
             break;
         case 'blackListUrl':
             addUrlToBlackList(message.url);
@@ -1273,10 +1273,16 @@ function addUrlToBlackList(url) {
 
 }
 
-function blackListCurrentTabDomain() {
+function blackListCurrentTabDomain(callBack) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         console.log("tabs data for blacklisting current domain: ", tabs);
-        addUrlToBlackList(getDomainName(tabs[0].url));
+        if (tabs.length > 0) {
+            addUrlToBlackList(getDomainName(tabs[0].url));
+            callBack({ status: true });
+            return;
+        }
+        callBack({ status: false });
+        return;
     });
 }
 

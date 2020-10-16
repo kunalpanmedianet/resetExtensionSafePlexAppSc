@@ -406,7 +406,8 @@ table {
 /* Sub 1 */
 /* Sub Tabs */
 .popupMainTabDisplay.hide,
-.popupSubTabDisplay.hide {
+.popupSubTabDisplay.hide,
+[p-threat].hide {
 	display: none !important;
 }
 

@@ -1,13 +1,12 @@
-
-function updateSafetyStatus(status){
-    document.getElementById("safetyStatus").innerHTML=status;
+function updateSafetyStatus(status) {
+    document.getElementById("safetyStatus").innerHTML = status;
 };
 
 
-chrome.runtime.sendMessage( {type : "popupHandshake"},function () {
-    chrome.runtime.onMessage.addListener(function (request, sender,sendResponse) {
+chrome.runtime.sendMessage({type: "popupHandshake"}, function () {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-        if(request.type == "updateSafetyStatus"){
+        if (request.type == "updateSafetyStatus") {
             updateSafetyStatus(request.status);
         }
         sendResponse();
@@ -23,9 +22,9 @@ storageKeys = {
     riskySitesCount: "riskySitesCount",
     blockedUrls: "blockedUrls",
     setTabActive: "setTabActive",
-    threat:"threat",
-    trackSitesData:"trackSitesData",
-    riskySitesData:"riskySitesData"
+    threat: "threat",
+    trackSitesData: "trackSitesData",
+    riskySitesData: "riskySitesData"
 };
 
 document.addEventListener('clearBrowsingData', function (e) {
@@ -59,7 +58,6 @@ function clearBrowsingData(e) {
 }
 
 
-
 document.addEventListener('trackSiteStatus', function (e) {
     setTrackSiteStatus(e);
 });
@@ -70,7 +68,6 @@ function setTrackSiteStatus(e) {
 }
 
 
-
 document.addEventListener('riskySiteStatus', function (e) {
     setRiskySiteStatus(e);
 });
@@ -79,8 +76,6 @@ function setRiskySiteStatus(e) {
     let details = (e || {})["detail"] || {};
     localStorage.setItem(storageKeys.riskySitesOpted, details['status']);
 }
-
-
 
 
 document.addEventListener('blockSites', function (e) {
@@ -142,6 +137,13 @@ function blackListCurrentTabUrl() {
             })
         );
     });
-
 }
 
+
+function init() {
+    localStorage.setItem(storageKeys.trackSiteOpted, 'yes');
+    localStorage.setItem(storageKeys.riskySitesOpted, 'yes');
+    localStorage.setItem(storageKeys.blockSitesOpted, 'yes');
+}
+
+init();

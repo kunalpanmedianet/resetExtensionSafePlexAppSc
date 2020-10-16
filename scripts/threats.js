@@ -16,8 +16,15 @@ const loadEventForThreats = (function () {
 		});
 	}
 
+	function handleEvents() {
+		htmlUtil(document).on('currentTabRiskyStatus', function (e) {
+			console.log(e.detail.threatData);
+		});
+	}
+
 	function load() {
 		onChangeHandle();
+		handleEvents();
 	}
 
 	return {

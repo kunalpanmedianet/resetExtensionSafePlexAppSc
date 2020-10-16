@@ -88,18 +88,44 @@ const handleFilterSearch = (function () {
 		htmlUtil('#filterSearchInput').on('keydown', function () {
 			htmlUtil('.filterSearchInputWrap').removeClass('error');
 		});
+
+		htmlUtil(window).on('storage', function () {
+			setViewList();
+		});
 		/* Input Add url */
+
+		htmlUtil(document).on('click', '.removeBlockedWebsite', function () {
+			const item = htmlUtil(this).data('item');
+			deleteUrl(item);
+		});
 	}
 
-	function setViewOnLoad() {
-		// Set OnLoad View
+	function deleteUrl(url) {
+		Utils.dispatchEvent('deleteUrl', { detail: { url } });
+		setViewList();
+	}
+
+	function setViewList() {
+		const list = Utils.getStorageItem(STORAGE_KEYS.blockedUrls) || [];
+		htmlUtil('#blockedWebsites').empty().parent().hide();
+		if (list.length) {
+			list.forEach(function (item) {
+				const li = `<li> 
+					<span class="shrink0"><img></span>
+					<span class="flex1">${item}</span>
+					<span data-item="${item}" class="removeBlockedWebsite shrink0">Remove</span>
+				</li>`;
+				htmlUtil('#blockedWebsites').append(li);
+			});
+			htmlUtil('#blockedWebsites').parent().show();
+		}
 	}
 
 	function load() {
 		toggler();
 		searchBarToggle();
 		handleCustomEvents();
-		setViewOnLoad();
+		setViewList();
 	}
 
 	return {

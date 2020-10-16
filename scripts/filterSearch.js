@@ -30,28 +30,40 @@ const handleFilterSearch = (function () {
 			}
 		};
 
+		/* Block Risky Sites Opted */
 		htmlUtil('#blockRiskSites').on('change', function () {
-			const riskySitesOpted = Object.assign({}, customEvent);
+			const riskySiteStatus = Object.assign({}, customEvent);
 
-			riskySitesOpted.detail.status = $(this).prop('checked') ? 'yes' : 'no';
-			Utils.dispatchEvent('riskySitesOpted', riskySitesOpted);
+			riskySiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('riskySiteStatus', riskySitesOpted);
 		});
+		/* Block Risky Sites Opted */
 
+		/* Block Tracker  */
 		htmlUtil('#blockTrackers').on('change', function () {
-			const trackSitesOpted = Object.assign({}, customEvent);
+			const trackSiteStatus = Object.assign({}, customEvent);
 
-			trackSitesOpted.detail.status = $(this).prop('checked') ? 'yes' : 'no';
-			Utils.dispatchEvent('trackSitesOpted', trackSitesOpted);
+			trackSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
 		});
+		/* Block Tracker  */
 
+		/* Block Websites */
 		htmlUtil('#blockWebsites').on('change', function () {
-			Utils.dispatchEvent('blackListCurrentUrl');
-		});
+			const blockSiteStatus = Object.assign({}, customEvent);
 
+			blockSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			Utils.dispatchEvent('blockSiteStatus');
+		});
+		/* Block Websites */
+
+		/* Add this Website */
 		htmlUtil('.addThisWebsite').on('click', function () {
 			Utils.dispatchEvent('addThisWebsite');
 		});
+		/* Add this Website */
 
+		/* Input Add url */
 		htmlUtil('#blockUrlForm').on('submit', function (e) {
 			e.preventDefault();
 			let url = htmlUtil('#filterSearchInput').val().trim();
@@ -76,6 +88,7 @@ const handleFilterSearch = (function () {
 		htmlUtil('#filterSearchInput').on('keydown', function () {
 			htmlUtil('.filterSearchInputWrap').removeClass('error');
 		});
+		/* Input Add url */
 	}
 
 	function setViewOnLoad() {

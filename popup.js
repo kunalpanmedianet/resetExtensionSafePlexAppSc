@@ -176,7 +176,7 @@ function getStatisticsData(e) {
     document.dispatchEvent(
         new CustomEvent('statisticsData', {
             detail: {
-                data: statisticsData
+                statisticsData: statisticsData
             }
         })
     );

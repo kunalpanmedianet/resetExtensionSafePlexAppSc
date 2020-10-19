@@ -1,6 +1,6 @@
 const statisticsViewController = (function () {
     const statisticsChartConfig = {
-        height: 150,
+        height: 180,
         width: 308,
         animationEnabled: false,
         theme: 'light1',
@@ -8,14 +8,25 @@ const statisticsViewController = (function () {
             verticalAlign: 'top',
             horizontalAlign: 'left',
             fontColor: '#3F4653',
-            fontSize: 10
+            fontSize: 11
         },
-        dataPointWidth: 16,
+        dataPointMaxWidth: 16,
         axisX: {
-            labelFontColor: '#A9ADb7'
+            tickColor: 'transparent',
+            labelFontColor: '#A9ADb7',
+            labelFontSize: 10,
+            lineColor: '#f3f3f3'
         },
         axisY: {
-            labelFontColor: '#A9ADb7'
+            gridThickness: 1,
+            tickColor: 'transparent',
+            tickLength: 1,
+            gridColor: '#f3f3f3',
+            labelFontColor: '#A9ADb7',
+            labelFontSize: 10,
+            lineColor: '#f3f3f3'
+            // maximum: 16,
+            // interval: 4
         },
         data: [
             {
@@ -25,13 +36,13 @@ const statisticsViewController = (function () {
                 color: '#00B474',
                 name: 'Risky Sites',
                 dataPoints: [
-                    { y: 10, label: 'S' },
-                    { y: 20, label: 'M' },
-                    { y: 30, label: 'T' },
-                    { y: 10, label: 'W' },
-                    { y: 35, label: 'T' },
-                    { y: 15, label: 'F' },
-                    { y: 25, label: 'S' }
+                    { y: 3, label: 'S' },
+                    { y: 2, label: 'M' },
+                    { y: 6, label: 'T' },
+                    { y: 4, label: 'W' },
+                    { y: 5, label: 'T' },
+                    { y: 8, label: 'F' },
+                    { y: 1, label: 'S' }
                 ]
             },
             {
@@ -41,13 +52,13 @@ const statisticsViewController = (function () {
                 color: '#0086F0',
                 name: 'Trackers',
                 dataPoints: [
-                    { y: 34, label: 'S' },
-                    { y: 22, label: 'M' },
-                    { y: 23, label: 'T' },
-                    { y: 12, label: 'W' },
-                    { y: 10, label: 'T' },
-                    { y: 25, label: 'F' },
-                    { y: 17, label: 'S' }
+                    { y: 4, label: 'S' },
+                    { y: 2, label: 'M' },
+                    { y: 3, label: 'T' },
+                    { y: 2, label: 'W' },
+                    { y: 0, label: 'T' },
+                    { y: 5, label: 'F' },
+                    { y: 7, label: 'S' }
                 ]
             }
         ]
@@ -80,62 +91,37 @@ const statisticsViewController = (function () {
         chart.render();
     }
 
-    function greaterThan100(item) {
-        if (item.length > 100) {
-            return `100+`;
-        } else {
-            return item;
-        }
-    }
-
-    function getListsArray(arr) {
-        return arr.reduce(function (acc, item) {
-            acc[item.url] = !!acc[item.url] ? acc[item.url] + 1 : 1;
-            return acc;
-        }, {});
-    }
-
-    function renderListOnView(data, id) {
-        Object.entries(data).forEach(function (item) {
-            htmlUtil(id).append('<li>' + item[0] + '</li>');
+    function handleEvents() {
+        htmlUtil('#statisticsType').on('change', function (e) {
+            console.log(e.currentTarget.value);
+        });
+        htmlUtil('#statisticsDayWise').on('change', function (e) {
+            console.log(e.currentTarget.value);
         });
     }
 
-    // function renderDataToView() {
-    //     const tempRiskyData = getListViewDataFromStorage().riskySitesData,
-    //         tempTrackSitesData = getListViewDataFromStorage().trackSitesData;
-    //     const riskySitesData = tempRiskyData ? tempRiskyData : [];
-    //     const trackSitesData = tempTrackSitesData ? tempTrackSitesData : [];
-
-    //     const riskySitesList = getListsArray(riskySitesData);
-    //     const trackSitesList = getListsArray(trackSitesData);
-
-    //     if (Object.keys(riskySitesList).length > 0) {
-    //         renderListOnView(riskySitesList, '#riskySitesList');
-    //     }
-
-    //     if (Object.keys(trackSitesList).length > 0) {
-    //         renderListOnView(trackSitesList, '#trackSitesList');
-    //     }
-
-    //     htmlUtil('#riskySitesData').text(
-    //         greaterThan100(riskySitesData.length) || 0
-    //     );
-    //     htmlUtil('#trackSitesData').text(
-    //         greaterThan100(trackSitesData.length) || 0
-    //     );
-    // }
-
-    // function handleEvents() {
-    //     htmlUtil('.acc-toggler').on('click', function () {
-    //         htmlUtil(this).parent().find('.acc-body').slideToggle();
+    // function setDataPointsValue(dataPointArr, dpType) {
+    // if (dpType == 'rs') {
+    //     var dataSetObj = [
+    //             { y: 3, label: 'S' },
+    //             { y: 2, label: 'M' },
+    //             { y: 6, label: 'T' },
+    //             { y: 4, label: 'W' },
+    //             { y: 5, label: 'T' },
+    //             { y: 8, label: 'F' },
+    //             { y: 1, label: 'S' }
+    //         ];
+    //     statisticsChartConfig.data[0].dataPoints = dataPointArr.map(function (dataPoint) {
+    //         dataSetObj;
     //     });
+    // } else if (dpType == 't') {
+    //     statisticsChartConfig.data[1];
+    // }
     // }
 
     function load() {
-        // handleEvents();
+        handleEvents();
         renderChartByData();
-        // renderDataToView();
     }
 
     return {

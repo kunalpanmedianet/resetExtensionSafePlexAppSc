@@ -95,7 +95,7 @@ document.addEventListener('blockUrl', function (e) {
 function blockUrl(e) {
     let details = (e || {})["detail"] || {};
     let url = details['url'];
-    chrome.runtime.sendMessage({type: 'blackListUrl',url:url},
+    chrome.runtime.sendMessage({type: 'blackListUrl', url: url},
         function (response) {
             console.log('Response: ', response);
         });
@@ -133,11 +133,12 @@ function blackListCurrentTabUrl() {
         });
 }
 
-chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'}, function (response) {});
+chrome.runtime.sendMessage({type: 'currentTabRiskyStatus'}, function (response) {
+});
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type === 'sendRiskStatusToPopup') {
-        console.log("response for threat change red:",message.threatStatus);
+        console.log("response for threat change red:", message.threatStatus);
         document.dispatchEvent(
             new CustomEvent('currentDomainStatus', {
                 detail: {
@@ -147,6 +148,64 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         );
     }
 });
+
+document.addEventListener('getStatisticsData', function (e) {
+    getStatisticsData(e);
+});
+
+
+function getStatisticsData(e) {
+    let details = (e || {})["detail"] || {};
+    let type = details['type'];
+    let duration = parseInt(details['duration']);
+    let statisticsData = {};
+    switch (type) {
+        case "all":
+            statisticsData["track"] = getStatisticsDataForDuration(duration, storageKeys.trackSitesData);
+            statisticsData["risky"] = getStatisticsDataForDuration(duration, storageKeys.riskySitesData);
+            break;
+        case "risky":
+            statisticsData["risky"] = getStatisticsDataForDuration(duration, storageKeys.riskySitesData);
+            break;
+        case "track":
+            statisticsData["track"] = getStatisticsDataForDuration(duration, storageKeys.trackSitesData);
+            break;
+        default:
+            break;
+    }
+    document.dispatchEvent(
+        new CustomEvent('statisticsData', {
+            detail: {
+                data: statisticsData
+            }
+        })
+    );
+}
+
+function getStatisticsDataForDuration(duration, storageKeyValue) {
+    if (localStorage.getItem(storageKeyValue) !== null) {
+        var statsData = [0,0,0,0,0,0,0];
+        var totalStatsDuration = duration * 24 * 60 * 60 * 1000;
+        var currentTimeInMilliSec = (new Date()).getTime();
+        var siteData = JSON.parse(localStorage.getItem(storageKeyValue));
+        for (var i = 0; i < siteData.length; i++) {
+            var timeStampValue = new Date(siteData[i]["timestamp"]);
+            var timeInMilliSec = timeStampValue.getTime();
+            if (timeInMilliSec >= (currentTimeInMilliSec - totalStatsDuration)) {
+                const day = timeStampValue.getDay();
+                statsData[day]++;
+            } else
+                break;
+        }
+        return statsData;
+    } else {
+        return [];
+    }
+
+}
+
+
+
 
 
 

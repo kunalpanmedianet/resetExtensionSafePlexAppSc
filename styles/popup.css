@@ -567,7 +567,15 @@ table {
 .threatIcon .greenSvg {
 	display: block;
 }
-
+.threatList li.threatActive .threatIcon .greenSvg {
+	display: none;
+}
+.threatList li.threatActive .threatIcon .redSvg {
+	display: block;
+}
+.threatList li.threatActive .threatText {
+	color: var(--error);
+}
 .threatText {
 	font-size: 14px;
 	font-weight: normal;

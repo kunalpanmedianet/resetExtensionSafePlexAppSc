@@ -26,13 +26,16 @@ const loadEventForThreats = (function () {
                 threatData.hasOwnProperty('count') &&
                 threatData.count > 0
             ) {
-                console.log('inside', threatData);
+                var count = threatData.count;
                 htmlUtil('[n-notifwrap]').addClass('error');
                 switch (threatData.threatType) {
                     // soft eng
                     case 'SOCIAL_ENGINEERING':
                     case 'UNWANTED_SOFTWARE':
                     case 'POTENTIALLY_HARMFUL_APPLICATION':
+                        htmlUtil('[threat-name="malware"]').addClass(
+                            'threatActive'
+                        );
                         htmlUtil('[threat-name="se"] .numberOfThreats').text(
                             count
                         );
@@ -40,6 +43,9 @@ const loadEventForThreats = (function () {
 
                     // malware
                     case 'MALWARE':
+                        htmlUtil('[threat-name="malware"]').addClass(
+                            'threatActive'
+                        );
                         htmlUtil(
                             '[threat-name="malware"] .numberOfThreats'
                         ).text(count);
@@ -47,6 +53,9 @@ const loadEventForThreats = (function () {
 
                     // adware
                     case 'ADWARE':
+                        htmlUtil('[threat-name="malware"]').addClass(
+                            'threatActive'
+                        );
                         htmlUtil(
                             '[threat-name="adware"] .numberOfThreats'
                         ).text(count);
@@ -54,18 +63,27 @@ const loadEventForThreats = (function () {
 
                     // others
                     case 'THREAT_TYPE_UNSPECIFIED':
+                        htmlUtil('[threat-name="malware"]').addClass(
+                            'threatActive'
+                        );
                         htmlUtil(
                             '[threat-name="others"] .numberOfThreats'
                         ).text(count);
                         break;
 
                     case 'None':
+                        htmlUtil('[threat-name="malware"]').removeClass(
+                            'threatActive'
+                        );
+                        htmlUtil('[threat-name] .numberOfThreats').text(0);
                         break;
                     default:
                         break;
                 }
             } else {
+                htmlUtil('[threat-name="malware"]').removeClass('threatActive');
                 htmlUtil('[n-notifwrap]').removeClass('error');
+                htmlUtil('[threat-name] .numberOfThreats').text(0);
             }
         });
     }

@@ -183,8 +183,8 @@ function getStatisticsData(e) {
 }
 
 function getStatisticsDataForDuration(duration, storageKeyValue) {
+    var statsData = [0,0,0,0,0,0,0];
     if (localStorage.getItem(storageKeyValue) !== null) {
-        var statsData = [0,0,0,0,0,0,0];
         var totalStatsDuration = duration * 24 * 60 * 60 * 1000;
         var currentTimeInMilliSec = (new Date()).getTime();
         var siteData = JSON.parse(localStorage.getItem(storageKeyValue));
@@ -199,7 +199,7 @@ function getStatisticsDataForDuration(duration, storageKeyValue) {
         }
         return statsData;
     } else {
-        return [];
+        return statsData;
     }
 
 }

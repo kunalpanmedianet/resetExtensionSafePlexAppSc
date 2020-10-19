@@ -1134,8 +1134,10 @@ function blockBlackListedUrl(data) {
                 if ((!!data.url && (data.url.indexOf(url) !== -1)))
                     return {cancel: true};
             })
-        }
-    return {cancel: false};
+        } else
+            return {cancel: false};
+    else
+        return {cancel: false};
 }
 
 // function blockBlackListedUrl(data) {
@@ -1215,13 +1217,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 function setThreatStatusForTab(threatType, url, count) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        console.log("tabs data before setting *****: ", tabs);
         var threatObject = {};
         threatObject["threatType"] = threatType;
         threatObject["url"] = url;
         threatObject["count"] = count;
         tabIdStatusMap[tabs[0].id] = threatObject;
-        console.log("tabIdStatusMap Id status map: ", tabIdStatusMap);
     });
 }
 
@@ -1271,10 +1271,10 @@ function blackListCurrentTabDomain(callBack) {
         console.log("tabs data for blacklisting current domain: ", tabs);
         if (tabs.length > 0) {
             addUrlToBlackList(getDomainName(tabs[0].url));
-            callBack({ status: true });
+            callBack({status: true});
             return;
         }
-        callBack({ status: false });
+        callBack({status: false});
         return;
     });
 }

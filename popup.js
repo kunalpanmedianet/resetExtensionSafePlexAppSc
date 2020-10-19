@@ -149,6 +149,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 });
 
+document.addEventListener('currentDomainStatus', function (e) {
+    let details = (e || {})["detail"] || {};
+    let status = details['threatData'];
+    console.log("domain status :***********",status);
+});
+
 document.addEventListener('getStatisticsData', function (e) {
     getStatisticsData(e);
 });

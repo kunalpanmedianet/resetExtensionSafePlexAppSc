@@ -17,8 +17,8 @@ const loadEventForThreats = (function () {
     }
 
     function handleEvents() {
-        htmlUtil(document).on('currentTabRiskyStatus', function (e) {
-            console.log(e.detail.threatData);
+        htmlUtil(document).on('currentDomainStatus', function (e) {
+            console.log(e.detail);
             var threatData = e.detail.threatData;
             htmlUtil('[threat-name] .numberOfThreats').text(0);
             if (
@@ -26,6 +26,7 @@ const loadEventForThreats = (function () {
                 threatData.hasOwnProperty('count') &&
                 threatData.count > 0
             ) {
+                console.log('inside', threatData);
                 htmlUtil('[n-notifwrap]').addClass('error');
                 switch (threatData.threatType) {
                     // soft eng

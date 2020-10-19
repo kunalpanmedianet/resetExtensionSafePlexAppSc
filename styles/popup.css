@@ -1080,6 +1080,12 @@ button:hover {
 .totalDataViewBody ul li span {
 	padding: 0 5px;
 }
+
+#statisticsViewChart {
+	height: 150px;
+	width: 100%;
+	margin-top: 10px;
+}
 /* StatisticsData */
 
 /* 

@@ -114,6 +114,38 @@ const statisticsViewController = (function () {
 
         var newStatConfig = Object.assign({}, statisticsChartConfig);
 
+        var totalCount = (function () {
+                var total = 0;
+                risky &&
+                    risky.map(function (riskVal) {
+                        total += riskVal;
+                    });
+                trackers &&
+                    trackers.map(function (trackVal) {
+                        total += trackVal;
+                    });
+                return total;
+            })(),
+            riskCount = (function () {
+                var total = 0;
+                risky &&
+                    risky.map(function (riskVal) {
+                        total += riskVal;
+                    });
+                return total;
+            })(),
+            trackCount = (function () {
+                var total = 0;
+                trackers &&
+                    trackers.map(function (riskVal) {
+                        total += riskVal;
+                    });
+                return total;
+            })();
+        htmlUtil('[stat-desc="total-count"]').text(totalCount);
+        htmlUtil('[stat-desc="risky"]').text(riskCount);
+        htmlUtil('[stat-desc="track"]').text(trackCount);
+
         if (statSelectedValues) {
             switch (statSelectedValues.type) {
                 case 'all':

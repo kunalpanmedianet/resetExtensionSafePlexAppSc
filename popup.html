@@ -396,7 +396,7 @@
                         </ul>
 
                     </div>
-                    <div p-threat="disable" style="display: none;" class="topMainDisable flex1 flex directionColumn">
+                    <div p-threat="disable" class="hide topMainDisable flex1 flex directionColumn">
                         <div class="flex1 topMainDisable_inner">
                             <div>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="72" height="61" viewBox="0 0 72 61">
@@ -460,7 +460,7 @@
                             Threat Scanning <span class="threatActions">Enabled</span>
                         </div>
                         <div class="toggleWrapper">
-                            <input type="checkbox" name="threatToggle" class="mobileToggle" id="threatDetectionToggle">
+                            <input type="checkbox" name="threatToggle" class="mobileToggle" checked id="threatDetectionToggle">
                             <label for="threatDetectionToggle"></label>
                         </div>
                     </div>
@@ -554,97 +554,100 @@
 
                 <!-- Filter Data View -->
                 <div id="filterSearch" class="popupSubTabDisplay flex directionColumn flex1 hide">
-                    <div class="toggler">
-                        <div class="togglerContent alignCenter flex">
-                            <div class="flex1 filterSearch flex alignCenter">
-                                Filter Search Enabled
-                            </div>
-                            <!-- <div class="toggleWrapper">
-                                <input checked type="checkbox" name="filterSearchToggler" filter-toggle-option="filterSearchOption" class="mobileToggle" id="filterSearchToggler">
-                                <label for="filterSearchToggler"></label>
-                            </div> -->
-                        </div>
-                        <div class="toggleContent" id="filterSearchOption">
-                            <div class="flex toggleContent_inner">
+                    <div class="viewContainer flex directionColumn flex1">
+                        <div class="toggler">
+                            <div class="togglerContent alignCenter flex">
                                 <div class="flex1 filterSearch flex alignCenter">
-                                    Block Risky Sites
+                                    Filter Search Enabled
                                 </div>
-                                <div class="toggleWrapper">
-                                    <input checked type="checkbox" name="blockRiskSites" class="mobileToggle" id="blockRiskSites">
-                                    <label for="blockRiskSites"></label>
-                                </div>
+                                <!-- <div class="toggleWrapper">
+                                                        <input checked type="checkbox" name="filterSearchToggler" filter-toggle-option="filterSearchOption" class="mobileToggle" id="filterSearchToggler">
+                                                        <label for="filterSearchToggler"></label>
+                                                    </div> -->
                             </div>
-                            <div class="flex toggleContent_inner">
-                                <div class="flex1 filterSearch flex alignCente">
-                                    Block Trackers
+                            <div class="toggleContent" id="filterSearchOption">
+                                <div class="flex toggleContent_inner">
+                                    <div class="flex1 filterSearch flex alignCenter">
+                                        Block Risky Sites
+                                    </div>
+                                    <div class="toggleWrapper">
+                                        <input checked type="checkbox" name="blockRiskSites" class="mobileToggle" id="blockRiskSites">
+                                        <label for="blockRiskSites"></label>
+                                    </div>
                                 </div>
-                                <div class="toggleWrapper">
-                                    <input checked type="checkbox" name="BlockTrackers" class="mobileToggle" id="blockTrackers">
-                                    <label for="blockTrackers"></label>
+                                <div class="flex toggleContent_inner">
+                                    <div class="flex1 filterSearch flex alignCente">
+                                        Block Trackers
+                                    </div>
+                                    <div class="toggleWrapper">
+                                        <input checked type="checkbox" name="BlockTrackers" class="mobileToggle" id="blockTrackers">
+                                        <label for="blockTrackers"></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="toggler">
-                        <div class="togglerContent alignCenter flex">
-                            <div class="flex1 filterSearch flex alignCenter">
-                                Block Website
+                        
+                        <div class="toggler">
+                            <div class="togglerContent alignCenter flex">
+                                <div class="flex1 filterSearch flex alignCenter">
+                                    Block Website
+                                </div>
+                                <div class="toggleWrapper">
+                                    <input checked type="checkbox" name="blockWebsites" filter-toggle-option="blockWebsitesOption"
+                                        class="mobileToggle" id="blockWebsites">
+                                    <label for="blockWebsites"></label>
+                                </div>
                             </div>
-                            <div class="toggleWrapper">
-                                <input checked type="checkbox" name="blockWebsites" filter-toggle-option="blockWebsitesOption"  class="mobileToggle" id="blockWebsites">
-                                <label for="blockWebsites"></label>
-                            </div>
-                        </div>
-                        <div class="toggleContent backgroundNone" id="blockWebsitesOption">
-                            <div class="flex searchQueryContent">
-                                <div class="filterSearchInputWrap" style="display: none;">
-                                    <div class="flex alignCenter">
-                                        <form id="blockUrlForm" class="flex1">
-                                            <input type="text" id="filterSearchInput" autofocus placeholder="Enter Url" />
-                                            <input type="submit" class="blockUrlSubmit" style="display: none;">
-                                        </form>
-                                        <span class="closeInput">
+                            <div class="toggleContent backgroundNone" id="blockWebsitesOption">
+                                <div class="flex searchQueryContent">
+                                    <div class="filterSearchInputWrap" style="display: none;">
+                                        <div class="flex alignCenter">
+                                            <form id="blockUrlForm" class="flex1">
+                                                <input type="text" id="filterSearchInput" autofocus placeholder="Enter Url" />
+                                                <input type="submit" class="blockUrlSubmit" style="display: none;">
+                                            </form>
+                                            <span class="closeInput">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="12" viewBox="0 0 11 12">
                                                     <g fill="none" fill-rule="evenodd">
                                                         <g stroke="#A8B0BA">
                                                             <g>
                                                                 <g>
                                                                     <path d="M.263.263L9.567 9.567M.526 9.737L9.568.178"
-                                                                          transform="translate(-325 -323) translate(12 309) translate(314 15)" />
+                                                                        transform="translate(-325 -323) translate(12 309) translate(314 15)" />
                                                                 </g>
                                                             </g>
                                                         </g>
                                                     </g>
                                                 </svg>
-
+                        
                                             </span>
+                                        </div>
                                     </div>
-                                </div>
-                                <button class="addThisWebsite">+ Add this website</button>
-                                <button class="searchButton">
-                                    <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                            <g id="22.-Reset_Chrome_Designs-1.5" transform="translate(-315.000000, -321.000000)" fill="#007D6D"
-                                               fill-rule="nonzero">
-                                                <g id="dropdown" transform="translate(298.000000, 309.000000)">
-                                                    <g id="noun_Search_3122418" transform="translate(17.000000, 12.000000)">
-                                                        <path
+                                    <button class="addThisWebsite">+ Add this website</button>
+                                    <button class="searchButton">
+                                        <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                <g id="22.-Reset_Chrome_Designs-1.5" transform="translate(-315.000000, -321.000000)"
+                                                    fill="#007D6D" fill-rule="nonzero">
+                                                    <g id="dropdown" transform="translate(298.000000, 309.000000)">
+                                                        <g id="noun_Search_3122418" transform="translate(17.000000, 12.000000)">
+                                                            <path
                                                                 d="M12.2694535,11.0900455 C14.5041153,8.23189298 14.1281245,4.12817641 11.4112891,1.72369008 C8.69445366,-0.680796247 4.57546039,-0.555284516 2.010066,2.01015905 C-0.555328389,4.57560263 -0.680761154,8.6945983 1.72377726,11.4113876 C4.12831567,14.1281769 8.23203945,14.504089 11.0901491,12.2693724 L14.2518448,15.4309185 C14.4622196,15.6430467 14.7699997,15.7264268 15.0586826,15.6494976 C15.3473656,15.5725683 15.5728386,15.347085 15.6497546,15.0583986 C15.7266707,14.7697121 15.6432764,14.4619359 15.4311387,14.2515707 L12.2694535,11.0900455 Z M6.87454041,12.0579568 C4.77796519,12.0579568 2.88780968,10.7950823 2.08545729,8.85811083 C1.28310491,6.9211394 1.72656674,4.69156891 3.20905562,3.20905267 C4.6915445,1.72653644 6.9211068,1.28303346 8.85809304,2.08535011 C10.7950793,2.88766675 12.0580274,4.77779895 12.0580274,6.87437417 C12.0548425,9.73583022 9.7359964,12.0547191 6.87454041,12.0579568 Z"
                                                                 id="Shape"></path>
+                                                        </g>
                                                     </g>
                                                 </g>
                                             </g>
-                                        </g>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="blockedWebsitesList" style="display:none">
-                                <h2 class="blockedWebsitesListHeading">Currently Blocked</h2>
-                                <ul class="blockedList">
-                                    <li></li>
-                                </ul>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="blockedWebsitesList" style="display:none">
+                                    <h2 class="blockedWebsitesListHeading">Currently Blocked</h2>
+                                    <ul class="blockedList" id='blockedWebsites'>
+                        
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -674,7 +677,9 @@
                     <div class="viewContainer flex directionColumn flex1">
                         <!-- Donut Chart Container  -->
                         <div class="listViewPieData whiteContainer flex shrink0">
-                            <div class="flex1 donutChartContainer">
+                            <div class="flex1 donutChartContainer flex alignCenter justifyCenter">
+                                <!-- Donut Chart DrillDown -->
+                                <div id="listViewChart"></div>
                                 <!-- Donut Chart DrillDown -->
                             </div>
                             <div class="flex1 flex directionColumn donutChartDataContainer">
@@ -696,8 +701,8 @@
                                                 </g>
                                             </svg>
                                         </span>
-                                    <span class="listViewPieDataLabel">Risky Sited Blocked</span>
-                                    <span class="viewDataNumber green">
+                                    <span class="listViewPieDataLabel">Risky Sites Blocked</span>
+                                    <span class="viewDataNumber green" id="riskySitesData">
                                             <!-- Number -->
                                             0
                                         </span>
@@ -721,7 +726,7 @@
                                             </svg>
                                         </span>
                                     <span class="listViewPieDataLabel">Trackers blocked</span>
-                                    <span class="viewDataNumber blue">
+                                    <span class="viewDataNumber blue" id='trackSitesData'>
                                             <!-- Number -->
                                             0
                                         </span>
@@ -739,10 +744,7 @@
                                         <p class="subHeading">Trackers</p>
                                     </div>
                                     <div class="accordionBody acc-body">
-                                        <ul>
-                                            <li>facebook.com</li>
-                                            <li>facebook.com</li>
-                                            <li>facebook.com</li>
+                                        <ul id="trackSitesList">
                                         </ul>
                                     </div>
                                 </div>
@@ -751,10 +753,7 @@
                                         <p class="subHeading">Risky Sites</p>
                                     </div>
                                     <div class="accordionBody acc-body">
-                                        <ul>
-                                            <li>facebook.com</li>
-                                            <li>facebook.com</li>
-                                            <li>facebook.com</li>
+                                        <ul id="riskySitesList">
                                         </ul>
                                     </div>
                                 </div>
@@ -860,12 +859,15 @@
         <!-- Tab Reports -->
     </div>
 </main>
-<script src="./scripts/jQuery.min.js"></script>
+<script src="./scripts/jQuery.js"></script>
+<script src="./scripts/canvasjs.js"></script>
 <script src="./scripts/constants.js"></script>
 <script src="./scripts/util.js"></script>
 <script src="./scripts/popup.js"></script>
+<script src="./scripts/threats.js"></script>
 <script src="./scripts/browsingData.js"></script>
 <script src="./scripts/filterSearch.js"></script>
+<script src="./scripts/listView.js"></script>
 <script type="text/javascript" src="popup.js"></script>
 </body>
 </html>

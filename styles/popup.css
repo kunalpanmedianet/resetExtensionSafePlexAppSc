@@ -406,7 +406,9 @@ table {
 /* Sub 1 */
 /* Sub Tabs */
 .popupMainTabDisplay.hide,
-.popupSubTabDisplay.hide {
+.popupSubTabDisplay.hide,
+[p-threat].hide,
+.canvasjs-chart-credit {
 	display: none !important;
 }
 
@@ -770,7 +772,7 @@ table {
 }
 
 .filterSearchInputWrap {
-	width: 340px;
+	width: 309px;
 	height: 40px;
 	border-radius: 4px;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
@@ -816,8 +818,9 @@ button:hover {
 }
 
 .addThisWebsite {
-	width: 276px;
+	max-width: 276px;
 	height: 40px;
+	width: 100%;
 	border-radius: 2px;
 	border: solid 1px #c8e1de;
 	background-color: var(--white);
@@ -830,6 +833,7 @@ button:hover {
 	line-height: normal;
 	letter-spacing: normal;
 	color: var(--primaryDark);
+	margin-right: 10px;
 }
 
 .searchButton {
@@ -851,6 +855,39 @@ button:hover {
 	letter-spacing: 0.1px;
 	color: var(--secondaryDark);
 	text-transform: uppercase;
+	margin-bottom: 10px;
+}
+
+.blockedList {
+	overflow: auto;
+}
+
+.blockedList li {
+	font-size: 13px;
+	display: flex;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--blue);
+	padding: 7px 0;
+}
+
+.blockedList li .removeBlockedWebsite {
+	font-size: 10px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--secondaryDark);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.blockedList li .removeBlockedWebsite:hover {
+	text-decoration: none;
 }
 
 /* Filter Search */
@@ -877,6 +914,11 @@ button:hover {
 
 .listViewPieData {
 	height: 152px;
+}
+
+#listViewChart {
+	height: 150px;
+	width: 150px;
 }
 
 .donutChartContainer {

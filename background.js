@@ -1128,21 +1128,16 @@ function blockSiteStatus() {
 
 function blockBlackListedUrl(data) {
     var blockedUrls = getBlockedUrls();
+    var toBlock = false;
     if (blockSiteStatus())
         if (blockedUrls.length !== 0) {
             blockedUrls.forEach(url => {
-                if (!!data.url && (data.url.indexOf(url) !== -1) && (data.type === 'main_frame'))
-                    return {cancel: true};
+                if (!!data.url && (data.url.indexOf(url) !== -1))
+                    toBlock = true;
             })
-        } else
-            return {cancel: false};
-    else
-        return {cancel: false};
+        }
+    return {cancel : toBlock};
 }
-
-// function blockBlackListedUrl(data) {
-//     return {cancel: true};
-// }
 
 function getBlockedUrls() {
     let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
@@ -1161,17 +1156,6 @@ chrome.webRequest.onBeforeRequest.addListener(
     },
     ['blocking']
 );
-
-// chrome.webRequest.onBeforeRequest.addListener(
-//     function (details) {
-//         return {cancel: true};
-//     },
-//     {
-//         urls: getBlockedUrls()
-//     },
-//     ['blocking']
-// );
-
 
 function riskySiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.riskySitesOpted)));

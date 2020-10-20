@@ -18,6 +18,7 @@ storageKeys = {
     trackSitesOpted: "trackSitesOpted",
     riskySitesOpted: "riskySitesOpted",
     blockSitesOpted: "blockSitesOpted",
+    blockRiskySitesRendering:"blockRiskySitesRendering",
     trackSiteCount: "trackSiteCount",
     riskySitesCount: "riskySitesCount",
     blockedUrls: "blockedUrls",
@@ -120,11 +121,6 @@ document.addEventListener('addThisWebsite', function (e) {
     blackListCurrentTabUrl(e);
 });
 
-function getDomainFromURL(url) {
-    var element = document.createElement("a");
-    element.href = url;
-    return element.host;
-}
 
 function blackListCurrentTabUrl() {
     chrome.runtime.sendMessage({type: 'blackListCurrentTabDomain'},
@@ -149,11 +145,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 });
 
-document.addEventListener('currentDomainStatus', function (e) {
-    let details = (e || {})["detail"] || {};
-    let status = details['threatData'];
-    console.log("domain status :***********",status);
-});
+
 
 document.addEventListener('getStatisticsData', function (e) {
     getStatisticsData(e);
@@ -209,6 +201,17 @@ function getStatisticsDataForDuration(duration, storageKeyValue) {
     }
 
 }
+
+
+document.addEventListener('blockRiskySitesRendering', function (e) {
+    blockRiskySitesRendering(e);
+});
+
+function blockRiskySitesRendering(e) {
+    let details = (e || {})["detail"] || {};
+    localStorage.setItem(storageKeys.blockRiskySitesRendering, details['status']);
+}
+
 
 
 

@@ -1131,7 +1131,7 @@ function blockBlackListedUrl(data) {
     if (blockSiteStatus())
         if (blockedUrls.length !== 0) {
             blockedUrls.forEach(url => {
-                if ((!!data.url && (data.url.indexOf(url) !== -1)))
+                if (!!data.url && (data.url.indexOf(url) !== -1) && (data.type === 'main_frame'))
                     return {cancel: true};
             })
         } else
@@ -1205,9 +1205,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     var threatType = response['@attributes']['threatType'];
                     var url = getDomainName(response['@attributes']['id']);
                     setThreatDataCount(threatType);
-                    setThreatStatusForTab(threatType, url, 1);
+                    setThreatStatusForTab(threatType, url, 1, tabId);
                     deleteOldData(storageKeys.riskySitesData);
                     setDataObject(url, storageKeys.riskySitesData);
+                } else {
+                    changeThreatStatusForTab(tabId);
                 }
                 DOMAIN_STATUS_MAP[domain] = status;
                 changeIcon(tabId, status);
@@ -1215,14 +1217,18 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         }
 });
 
-function setThreatStatusForTab(threatType, url, count) {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        var threatObject = {};
-        threatObject["threatType"] = threatType;
-        threatObject["url"] = url;
-        threatObject["count"] = count;
-        tabIdStatusMap[tabs[0].id] = threatObject;
-    });
+function changeThreatStatusForTab(tabId) {
+    if (tabId in tabIdStatusMap)
+        delete tabIdStatusMap[tabId];
+}
+
+
+function setThreatStatusForTab(threatType, url, count, tabId) {
+    var threatObject = {};
+    threatObject["threatType"] = threatType;
+    threatObject["url"] = url;
+    threatObject["count"] = count;
+    tabIdStatusMap[tabId] = threatObject;
 }
 
 

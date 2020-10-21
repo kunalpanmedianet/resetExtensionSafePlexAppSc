@@ -1067,7 +1067,6 @@ function dropTrackRequest(data) {
         setTotalTrackCount();
         deleteOldData(storageKeys.trackSitesData);
         setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
-        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
         return {cancel: true};
     } else
         return {cancel: false};
@@ -1206,8 +1205,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 function renderRiskySiteHtml(tabId, url) {
-    chrome.runtime.sendMessage({type: 'blockRiskySiteRendering', url: url}, function (response) {
-    });
+    const blockRiskySitesRendering = 'yes' === (localStorage.getItem(storageKeys.blockRiskySitesRendering));
+    if(blockRiskySitesRendering){
+        var riskySiteHtml= chrome.runtime.getURL('riskySite.html?riskyUrl='+url+'');
+        chrome.tabs.update(tabId, {url: riskySiteHtml});
+    }
 }
 
 function changeThreatStatusForTab(tabId) {

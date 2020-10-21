@@ -853,6 +853,7 @@ storageKeys = {
     trackSitesOpted: "trackSitesOpted",
     riskySitesOpted: "riskySitesOpted",
     blockSitesOpted: "blockSitesOpted",
+    blockRiskySitesRendering:"blockRiskySitesRendering",
     trackSiteCount: "trackSiteCount",
     riskySitesCount: "riskySitesCount",
     blockedUrls: "blockedUrls",
@@ -1066,6 +1067,7 @@ function dropTrackRequest(data) {
         setTotalTrackCount();
         deleteOldData(storageKeys.trackSitesData);
         setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
+        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
         return {cancel: true};
     } else
         return {cancel: false};
@@ -1132,7 +1134,7 @@ function blockBlackListedUrl(data) {
             for (var i = 0; i < blockedUrls.length; i++) {
                 if (!!data.url && (data.url.indexOf(blockedUrls[i]) !== -1)) {
                     return {
-                        redirectUrl: "blocksite.html"
+                        redirectUrl: chrome.runtime.getURL('blockSite.html?blockedurl='+ blockedUrls[i]+'')
                     };
                 }
             }
@@ -1204,13 +1206,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 function renderRiskySiteHtml(tabId, url) {
-    // console.log("rendering diff website");
-    // chrome.tabs.executeScript(tabId, {
-    //     code: `console.log('location:', window.location.href);`
-    // }, result => {
-    //     const lastErr = chrome.runtime.lastError;
-    //     if (lastErr) console.log('tab: ((((((((((((((((' + tabId + ' lastError: ' + JSON.stringify(lastErr));
-    // });
     chrome.runtime.sendMessage({type: 'blockRiskySiteRendering', url: url}, function (response) {
     });
 }

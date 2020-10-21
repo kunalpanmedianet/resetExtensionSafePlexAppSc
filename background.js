@@ -1119,12 +1119,6 @@ function blockSiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.blockSitesOpted)));
 }
 
-function blockSiteRendering(url) {
-    console.log("inside block site rendering ********************");
-    chrome.runtime.sendMessage({type: 'blockSiteRendering', url: url}, function (response) {
-    });
-}
-
 function blockBlackListedUrl(data) {
     var blockedUrls = getBlockedUrls();
     var toBlock = false;

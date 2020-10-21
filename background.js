@@ -1132,7 +1132,7 @@ function blockBlackListedUrl(data) {
     if (blockSiteStatus())
         if (blockedUrls.length !== 0) {
             blockedUrls.forEach(url => {
-                if (!!data.url && (data.url.indexOf(url) !== -1))
+                if (!!data.url && (data.url.indexOf(url) !== -1) && (data.type !=='main_frame'))
                     toBlock = true;
             })
         }
@@ -1240,10 +1240,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'blackListUrl':
             addUrlToBlackList(message.url);
             break;
+        case 'blockWebsite':
+            currentSiteStatus(getDomainName(sender.url));
+            break;
         default:
             console.log("Calling default");
     }
 });
+
+function currentSiteStatus(url){
+    var blockedUrls = getBlockedUrls();
+}
 
 function addUrlToBlackList(url) {
     let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));

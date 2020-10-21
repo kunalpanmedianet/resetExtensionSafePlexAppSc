@@ -1061,19 +1061,14 @@ function setTotalTrackCount() {
 
 
 function dropTrackRequest(data) {
-    if (!!!chrome.runtime.lastError) {
-        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
-        if (optedRiskySites) {
-            setTotalTrackCount();
-            if (!!data.url) {
-                deleteOldData(storageKeys.trackSitesData);
-                setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
-            }
-            return {cancel: true};
-        } else {
-            return {cancel: false};
-        }
-    }
+    const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
+    if (optedRiskySites) {
+        setTotalTrackCount();
+        deleteOldData(storageKeys.trackSitesData);
+        setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
+        return {cancel: true};
+    } else
+        return {cancel: false};
 }
 
 function setTrackSiteCount() {
@@ -1119,11 +1114,14 @@ chrome.webRequest.onBeforeRequest.addListener(
     ['blocking']
 );
 
-
-// || (!!data.initiator && (data.initiator.indexOf(url) !== -1))
-
 function blockSiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.blockSitesOpted)));
+}
+
+function blockSiteRendering(url) {
+    console.log("inside block site rendering ********************");
+    chrome.runtime.sendMessage({type: 'blockSiteRendering', url: url}, function (response) {
+    });
 }
 
 function blockBlackListedUrl(data) {
@@ -1131,12 +1129,15 @@ function blockBlackListedUrl(data) {
     var toBlock = false;
     if (blockSiteStatus())
         if (blockedUrls.length !== 0) {
-            blockedUrls.forEach(url => {
-                if (!!data.url && (data.url.indexOf(url) !== -1))
-                    toBlock = true;
-            })
+            for (var i = 0; i < blockedUrls.length; i++) {
+                if (!!data.url && (data.url.indexOf(blockedUrls[i]) !== -1)) {
+                    return {
+                        redirectUrl: "blocksite.html"
+                    };
+                }
+            }
         }
-    return {cancel : toBlock};
+    return {cancel: toBlock};
 }
 
 function getBlockedUrls() {
@@ -1192,6 +1193,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     setThreatStatusForTab(threatType, url, 1, tabId);
                     deleteOldData(storageKeys.riskySitesData);
                     setDataObject(url, storageKeys.riskySitesData);
+                    renderRiskySiteHtml(tabId, url);
                 } else {
                     changeThreatStatusForTab(tabId);
                 }
@@ -1200,6 +1202,18 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             });
         }
 });
+
+function renderRiskySiteHtml(tabId, url) {
+    // console.log("rendering diff website");
+    // chrome.tabs.executeScript(tabId, {
+    //     code: `console.log('location:', window.location.href);`
+    // }, result => {
+    //     const lastErr = chrome.runtime.lastError;
+    //     if (lastErr) console.log('tab: ((((((((((((((((' + tabId + ' lastError: ' + JSON.stringify(lastErr));
+    // });
+    chrome.runtime.sendMessage({type: 'blockRiskySiteRendering', url: url}, function (response) {
+    });
+}
 
 function changeThreatStatusForTab(tabId) {
     if (tabId in tabIdStatusMap)

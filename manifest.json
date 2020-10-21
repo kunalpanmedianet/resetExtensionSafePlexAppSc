@@ -12,9 +12,9 @@
   "content_scripts": [
     {
       "matches": [
-        "*://safeplexsearch.com/*"
+        "*://*/*"
       ],
-      "run_at": "document_start",
+      "run_at": "document_end",
       "js": [
         "contentScript.js"
       ]
@@ -38,6 +38,7 @@
     "default_popup": "popup.html"
   },
   "permissions": [
+    "*://*/*",
     "https://search.yahoo.com/*",
     "*://safeplexsearch.com/*",
     "*://weatherwaves.co/*",

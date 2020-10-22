@@ -33,9 +33,7 @@ const loadEventForThreats = (function () {
                     case 'SOCIAL_ENGINEERING':
                     case 'UNWANTED_SOFTWARE':
                     case 'POTENTIALLY_HARMFUL_APPLICATION':
-                        htmlUtil('[threat-name="malware"]').addClass(
-                            'threatActive'
-                        );
+                        htmlUtil('[threat-name="se"]').addClass('threatActive');
                         htmlUtil('[threat-name="se"] .numberOfThreats').text(
                             count
                         );
@@ -53,7 +51,7 @@ const loadEventForThreats = (function () {
 
                     // adware
                     case 'ADWARE':
-                        htmlUtil('[threat-name="malware"]').addClass(
+                        htmlUtil('[threat-name="adware"]').addClass(
                             'threatActive'
                         );
                         htmlUtil(
@@ -63,18 +61,14 @@ const loadEventForThreats = (function () {
 
                     // others
                     case 'THREAT_TYPE_UNSPECIFIED':
-                        htmlUtil('[threat-name="malware"]').addClass(
-                            'threatActive'
-                        );
+                        htmlUtil('[threat-name="v"]').addClass('threatActive');
                         htmlUtil(
                             '[threat-name="others"] .numberOfThreats'
                         ).text(count);
                         break;
 
                     case 'None':
-                        htmlUtil('[threat-name="malware"]').removeClass(
-                            'threatActive'
-                        );
+                        htmlUtil('[threat-name]').removeClass('threatActive');
                         htmlUtil('[threat-name] .numberOfThreats').text(0);
                         break;
                     default:

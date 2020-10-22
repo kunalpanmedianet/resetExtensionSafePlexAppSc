@@ -30,7 +30,8 @@ const statisticsViewController = (function () {
             },
             data: [
                 {
-                    toolTipContent: 'Risky Sites: {y}',
+                    toolTipContent:
+                        '<p style="text-align:center;word-wrap:break-word;">{y} <br />Risky Sites Blocked</p>',
                     type: 'stackedColumn',
                     showInLegend: true,
                     color: '#00B474',
@@ -38,7 +39,8 @@ const statisticsViewController = (function () {
                     dataPoints: []
                 },
                 {
-                    toolTipContent: 'Trackers: {y}',
+                    toolTipContent:
+                        '<p style="text-align:center;word-wrap:break-word;">{y} <br />Trackers Blocked</p>',
                     type: 'stackedColumn',
                     showInLegend: true,
                     color: '#0086F0',
@@ -159,6 +161,10 @@ const statisticsViewController = (function () {
                             return temp;
                         }
                     );
+                    htmlUtil('.siteBlockDesc')
+                        .show()
+                        .css('border-width', '1px');
+                    htmlUtil('.trackerBlockDesc').show();
                     break;
 
                 case 'risky':
@@ -172,6 +178,10 @@ const statisticsViewController = (function () {
                             dataPoints: riskydata
                         }
                     ];
+                    htmlUtil('.siteBlockDesc')
+                        .show()
+                        .css('border-width', '0px');
+                    htmlUtil('.trackerBlockDesc').hide();
                     break;
 
                 case 'track':
@@ -185,6 +195,8 @@ const statisticsViewController = (function () {
                             dataPoints: trackerData
                         }
                     ];
+                    htmlUtil('.siteBlockDesc').hide();
+                    htmlUtil('.trackerBlockDesc').show();
                     break;
 
                 default:

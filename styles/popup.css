@@ -1075,6 +1075,7 @@ button:hover {
 
 .totalDataViewBody {
 	padding: 0 15px;
+	height: 82px;
 }
 
 .totalDataViewBody ul li {

@@ -116,7 +116,7 @@ const statisticsViewController = (function () {
 				risky.forEach(function (riskVal) {
 					total += riskVal;
 				});
-			trackers &&
+			Array.isArray(trackers) &&
 				trackers.forEach(function (trackVal) {
 					total += trackVal;
 				});

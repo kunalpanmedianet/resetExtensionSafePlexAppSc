@@ -1,6 +1,3 @@
-console.log("content script loaded ******************************");
-
-
 function setItem(key, value) {
     localStorage.setItem(key, value);
 }
@@ -41,15 +38,6 @@ function getItem(key) {
     return itemValue;
 }
 
-function showBlockSiteHtml(url) {
-    console.log("blocking this website ::::");
-    document.innerHTML = "this " + url + "  is been blocked";
-}
-
-function showRiskySiteHtml(url) {
-    console.log("blocking this website ::::");
-    document.innerHTML = "this " + url + "  is been blocked";
-}
 
 
 chrome.runtime.onMessage.addListener(
@@ -58,12 +46,6 @@ chrome.runtime.onMessage.addListener(
             case "store":
                 var completedEvents = setItemE(request.key, request.value);
                 sendResponse(completedEvents);
-                break;
-            case "blockSiteRendering":
-                showBlockSiteHtml(request.url);
-                break;
-            case "blockRiskySiteRendering":
-                showRiskySiteHtml(request.url);
                 break;
             default:
                 sendResponse();

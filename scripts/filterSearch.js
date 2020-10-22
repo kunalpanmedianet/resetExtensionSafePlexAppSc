@@ -34,8 +34,10 @@ const handleFilterSearch = (function () {
 		htmlUtil('#blockRiskSites').on('change', function () {
 			const riskySiteStatus = Object.assign({}, customEvent);
 
-			riskySiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
-			Utils.dispatchEvent('riskySiteStatus', riskySitesOpted);
+			riskySiteStatus.detail.status = htmlUtil(this).prop('checked')
+				? 'yes'
+				: 'no';
+			Utils.dispatchEvent('blockRiskySitesRendering', riskySitesOpted);
 		});
 		/* Block Risky Sites Opted */
 
@@ -43,7 +45,9 @@ const handleFilterSearch = (function () {
 		htmlUtil('#blockTrackers').on('change', function () {
 			const trackSiteStatus = Object.assign({}, customEvent);
 
-			trackSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			trackSiteStatus.detail.status = htmlUtil(this).prop('checked')
+				? 'yes'
+				: 'no';
 			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
 		});
 		/* Block Tracker  */
@@ -52,7 +56,9 @@ const handleFilterSearch = (function () {
 		htmlUtil('#blockWebsites').on('change', function () {
 			const blockSiteStatus = Object.assign({}, customEvent);
 
-			blockSiteStatus.detail.status = $(this).prop('checked') ? 'yes' : 'no';
+			blockSiteStatus.detail.status = htmlUtil(this).prop('checked')
+				? 'yes'
+				: 'no';
 			Utils.dispatchEvent('blockSiteStatus');
 		});
 		/* Block Websites */

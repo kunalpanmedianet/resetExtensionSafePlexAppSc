@@ -28,6 +28,8 @@ storageKeys = {
     riskySitesData: "riskySitesData"
 };
 
+
+
 document.addEventListener('clearBrowsingData', function (e) {
     clearBrowsingData(e);
 });
@@ -211,9 +213,6 @@ function blockRiskySitesRendering(e) {
     let details = (e || {})["detail"] || {};
     localStorage.setItem(storageKeys.blockRiskySitesRendering, details['status']);
 }
-
-
-
 
 
 

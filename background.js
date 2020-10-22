@@ -1018,6 +1018,7 @@ var trackList = [
     "/ads/counter."
 ];
 
+
 let tabIdStatusMap = {};
 
 function getDomainName(url) {
@@ -1061,19 +1062,14 @@ function setTotalTrackCount() {
 
 
 function dropTrackRequest(data) {
-    if (!!!chrome.runtime.lastError) {
-        const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
-        if (optedRiskySites) {
-            setTotalTrackCount();
-            if (!!data.url) {
-                deleteOldData(storageKeys.trackSitesData);
-                setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
-            }
-            return {cancel: true};
-        } else {
-            return {cancel: false};
-        }
-    }
+    const optedRiskySites = 'yes' === (localStorage.getItem(storageKeys.trackSitesOpted));
+    if (optedRiskySites) {
+        setTotalTrackCount();
+        deleteOldData(storageKeys.trackSitesData);
+        setDataObject(getDomainName(data.url), storageKeys.trackSitesData);
+        return {cancel: true};
+    } else
+        return {cancel: false};
 }
 
 function setTrackSiteCount() {
@@ -1119,9 +1115,6 @@ chrome.webRequest.onBeforeRequest.addListener(
     ['blocking']
 );
 
-
-// || (!!data.initiator && (data.initiator.indexOf(url) !== -1))
-
 function blockSiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.blockSitesOpted)));
 }
@@ -1131,12 +1124,15 @@ function blockBlackListedUrl(data) {
     var toBlock = false;
     if (blockSiteStatus())
         if (blockedUrls.length !== 0) {
-            blockedUrls.forEach(url => {
-                if (!!data.url && (data.url.indexOf(url) !== -1) && (data.type !=='main_frame'))
-                    toBlock = true;
-            })
+            for (var i = 0; i < blockedUrls.length; i++) {
+                if (!!data.url && (data.url.indexOf(blockedUrls[i]) !== -1)) {
+                    return {
+                        redirectUrl: chrome.runtime.getURL('blockSite.html?blockedurl='+ blockedUrls[i]+'')
+                    };
+                }
+            }
         }
-    return {cancel : toBlock};
+    return {cancel: toBlock};
 }
 
 function getBlockedUrls() {
@@ -1192,6 +1188,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     setThreatStatusForTab(threatType, url, 1, tabId);
                     deleteOldData(storageKeys.riskySitesData);
                     setDataObject(url, storageKeys.riskySitesData);
+                    renderRiskySiteHtml(tabId, url);
                 } else {
                     changeThreatStatusForTab(tabId);
                 }
@@ -1200,6 +1197,14 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             });
         }
 });
+
+function renderRiskySiteHtml(tabId, url) {
+    const blockRiskySitesRendering = 'yes' === (localStorage.getItem(storageKeys.blockRiskySitesRendering));
+    if(blockRiskySitesRendering){
+        var riskySiteHtml= chrome.runtime.getURL('riskySite.html?riskyUrl='+url+'');
+        chrome.tabs.update(tabId, {url: riskySiteHtml});
+    }
+}
 
 function changeThreatStatusForTab(tabId) {
     if (tabId in tabIdStatusMap)
@@ -1240,17 +1245,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'blackListUrl':
             addUrlToBlackList(message.url);
             break;
-        case 'blockWebsite':
-            currentSiteStatus(getDomainName(sender.url));
-            break;
         default:
             console.log("Calling default");
     }
 });
-
-function currentSiteStatus(url){
-    var blockedUrls = getBlockedUrls();
-}
 
 function addUrlToBlackList(url) {
     let blockedUrls = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
@@ -1284,6 +1282,7 @@ function init() {
 }
 
 init();
+
 
 function getDomain(url) {
     var domain = url.split("#")[0];

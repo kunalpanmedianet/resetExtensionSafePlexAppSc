@@ -53,11 +53,6 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-chrome.runtime.sendMessage({type: 'blockWebsite'},
-    function (response) {
-        console.log('Response: ', response);
-    });
-
 
 function init() {
     var ele = document.createElement('div');

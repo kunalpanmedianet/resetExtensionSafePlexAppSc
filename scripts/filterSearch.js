@@ -37,7 +37,7 @@ const handleFilterSearch = (function () {
             riskySiteStatus.detail.status = $(this).prop('checked')
                 ? 'yes'
                 : 'no';
-            Utils.dispatchEvent('riskySiteStatus', riskySitesOpted);
+            Utils.dispatchEvent('blockRiskySitesRendering', riskySitesOpted);
         });
         /* Block Risky Sites Opted */
 

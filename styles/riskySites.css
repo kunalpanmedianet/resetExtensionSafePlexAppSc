@@ -1,0 +1,135 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.overlay_bg {
+	position: fixed;
+	display: flex;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+	flex-direction: column;
+}
+
+.topImg {
+	height: 300px;
+	background: url(../assets/rsTopBg.jpg) center / cover no-repeat;
+	flex-shrink: 0;
+}
+
+.bottmImg {
+	flex: 1;
+	background: url(../assets/rsBttmBg.png) center / cover no-repeat;
+}
+
+.rsMain {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	position: relative;
+}
+
+.rsLogoContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.rsLogo {
+	max-width: 1000px;
+	width: 100%;
+	padding: 30px 10px;
+}
+
+.rsContainer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 10px;
+}
+
+.rsBanner {
+	width: 100%;
+	max-width: 804px;
+	height: 450px;
+	border-radius: 10px;
+	box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+	background-color: #fff;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.rsBannerLogo {
+	width: 100px;
+	height: 108px;
+	margin: 30px;
+}
+
+.rsHeading {
+	font-size: 36px;
+	font-weight: bold;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: 0.89;
+	letter-spacing: normal;
+	text-align: center;
+	color: #3f4653;
+}
+
+.rsDescription {
+	font-size: 28px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: 1.07;
+	letter-spacing: -0.35px;
+	text-align: center;
+	color: #4d4d4d;
+	margin: 50px 0 30px 0;
+}
+
+.rsGoBack {
+	width: 288px;
+	height: 58px;
+	border-radius: 2px;
+	background-color: #007d6d;
+	font-size: 18px;
+	font-weight: 600;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	text-align: center;
+	color: #fff;
+	border: none;
+	margin-bottom: 20px;
+	cursor: pointer;
+}
+
+.rsGoBack:hover {
+	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+}
+
+.rsProceedAnyway {
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: normal;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	text-align: center;
+	color: #4d4d4d;
+	text-decoration: underline;
+}
+
+.rsProceedAnyway:hover {
+	text-decoration: none;
+}

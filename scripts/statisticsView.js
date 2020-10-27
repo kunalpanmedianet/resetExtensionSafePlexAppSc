@@ -8,7 +8,7 @@ const statisticsViewController = (function () {
 				verticalAlign: 'top',
 				horizontalAlign: 'left',
 				fontColor: '#3F4653',
-				fontSize: 11
+				fontSize: 12
 			},
 			dataPointMaxWidth: 16,
 			axisX: {

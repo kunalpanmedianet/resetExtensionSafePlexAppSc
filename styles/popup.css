@@ -1017,6 +1017,10 @@ button:hover {
 	width: 6px;
 	border-right: 1px solid var(--secondaryDark);
 	border-bottom: 1px solid var(--secondaryDark);
+	transform: rotate(-135deg);
+}
+
+.accordionContainer.active .accordionHeader:after {
 	transform: rotate(45deg);
 }
 

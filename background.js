@@ -948,9 +948,6 @@ function checkLinksValidity(links) {
 }
 
 
-
-
-
 function getDomain(url) {
     var domain = url.split("#")[0];
     domain = domain.split("?")[0];
@@ -2125,6 +2122,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'blackListUrl':
             addUrlToBlackList(message.url);
             break;
+        case 'deleteBlockUrl':
+            deleteUrlFromBlackList(message.url);
+            break;
+        case 'deleteBlockUrlAndRenderSite':
+            deleteUrlFromBlackList(message.url);
+            renderSite(sender.tab.id,message.url)
+            break;
         default:
             console.log("Calling default");
     }
@@ -2138,8 +2142,20 @@ function addUrlToBlackList(url) {
         blockedUrls.push(url);
         localStorage.setItem(storageKeys.blockedUrls, JSON.stringify(blockedUrls));
     }
-
 }
+
+function deleteUrlFromBlackList(url) {
+    let blackListedDomain = JSON.parse(localStorage.getItem(storageKeys.blockedUrls));
+    if (!!blackListedDomain && blackListedDomain.indexOf(url) > -1) {
+        blackListedDomain.splice(blackListedDomain.indexOf(url), 1);
+    }
+    localStorage.setItem(storageKeys.blockedUrls, JSON.stringify(blackListedDomain));
+}
+
+function renderSite(tabId,url){
+    chrome.tabs.update(tabId, {url: url});
+}
+
 
 function blackListCurrentTabDomain(callBack) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {

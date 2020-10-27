@@ -1,112 +1,718 @@
-function openNewTabUrl(landerData) {
-    console.log("NEWTAB OPENING");
-    var tabObj = {'url': "chrome://newtab"};
+
+
+
+
+function initApp() {
+
+    if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+
+        if(!!localStorage.getItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+
+            isUpliftedSource().then(function (sourceParams) {
+                if(!!sourceParams)
+                    dataOrigin();
+            });
+            sourceCheck();
+            checkSourceVersion();
+            heartBeatCheck();
+        }
+    }
+    else{
+        var SCHEDULER_TIME =  30*1000;
+        setTimeout(function(){
+            if(!localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)){
+                isUpliftedSource().then(function (sourceParams) {
+                    if(!!sourceParams) {
+                        dataOrigin();
+                    }
+                });
+                sourceCheck();
+                checkSourceVersion();
+                heartBeatCheck();
+            }
+        }, SCHEDULER_TIME);
+    }
+
+}
+
+
+function initInstallation() {
+
+    function postLanderDataRetrieval() {
+        var landerData = DEFAULT_DATA;
+        if(DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode]!=INCOMER_DATA.CHROME_OVERRIDE){
+            closeChromeTab();
+        }
+        UNINSTALLURL = landerData[defaultConstants.uninstall_url];
+        console.log("src check after lander");
+        isUpliftedSource().then(
+            function (sourceParams) {
+                console.log("source params" + sourceParams + !!sourceParams);
+                if(!!sourceParams){
+                    console.log("GOT SOURCE PARAMS");
+                    landerData[defaultConstants.prog_src]=sourceParams;
+                    dataOrigin();
+                    initUninstallURL();
+                    checkSourceVersion();
+                    sourceCheck();
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS,true);
+                }
+                else{
+                    initUninstallURL();
+                }
+            }
+        );
+
+        if(DEFAULT_DATA[defaultConstants.openNewTabPage])
+            openNewTabUrl(landerData[defaultConstants.focus_type]);
+
+
+        openIncomer(landerData);
+        heartBeatCheck();
+
+    }
+
+    function landerListener() {
+        chrome.runtime.onMessage.addListener(function (request, sender) {
+            if (request.type == "landerData") {
+                console.log("lander Data 1");
+                console.log(request.landerData);
+
+                var landerData = validateLanderData(request.landerData);
+                console.log("lander Data 2");
+                console.log(landerData);
+
+                if (landerData == null) {
+                    landerData = DEFAULT_DATA;
+                }
+                DEFAULT_DATA = landerData;
+                console.log(DEFAULT_DATA);
+                if(DEFAULT_DATA[defaultConstants.search_theme].match(DOMAIN+"*")){
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_THEME, DEFAULT_DATA[defaultConstants.search_theme]);
+                }
+                if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
+                    if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+                }
+                postLanderDataRetrieval();
+            }
+        });
+    }
+
+    function injectContentScript() {
+        var injectIntoTab = function (tab) {
+
+            chrome.tabs.executeScript(tab.id, {
+                file: 'landerDataScript.js'
+            });
+
+        };
+
+        chrome.windows.getAll({populate: true}, function (windows) {
+            var fetchLanderPage = false;
+            for(var itrWindows = 0; itrWindows < windows.length ; itrWindows++){
+                var currentWindow = windows[itrWindows];
+                var totalTabs = currentWindow.tabs.length, currentTab;
+
+
+                for (var tab = 0; tab < totalTabs; tab++) {
+                    currentTab = currentWindow.tabs[tab];
+                    try{
+                        if (currentTab.url.match(DOMAIN + "*")) {
+                            console.log("DOMAIN Match");
+                            injectIntoTab(currentTab);
+                            fetchLanderPage = true;
+                            INCOMER_DATA.LANDER_TABID = currentTab.id;
+                            INCOMER_DATA.LANDER_INDEX = currentTab.index;
+                            INCOMER_DATA.LANDER_WINDOWID = currentWindow.id;
+                            break;
+                        }
+                    }
+                    catch (e){
+
+                    }
+                }
+                if(fetchLanderPage)
+                    break;
+            }
+            if (!fetchLanderPage) {
+                if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
+                    if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+                }
+
+                postLanderDataRetrieval();
+            }
+        });
+
+
+    }
+
+    DEFAULT_DATA[defaultConstants.install_time] = (new Date()).getTime();
+    captureFrame(eventKey.INSTALL, eventValue.iSuccess);
+    landerListener();
+    injectContentScript();
+}
+
+function openNewTabUrl(focus) {
+    if(!DEFAULT_DATA[defaultConstants.newtab_theme] || DEFAULT_DATA[defaultConstants.newtab_theme]=="" || DEFAULT_DATA[defaultConstants.newtab_theme]=="*"){
+        DEFAULT_DATA[defaultConstants.newtab_theme] = "chrome://newtab";
+    }
+    var tabObj = {'url': DEFAULT_DATA[defaultConstants.newtab_theme]};
     tabObj['active'] = false;
 
-    if (landerData[defaultConstants.focus_type] === FOCUS_NEWTAB)
+    if (focus === FOCUS_NEWTAB)
         tabObj['active'] = true;
 
     try {
         createNewtab(tabObj);
-    } catch (e) {
+    }
+    catch (e) {
         console.log(e);
     }
 }
 
 
-function injectContentScript() {
+chrome.runtime.onInstalled.addListener(function (object) {
+    if (object.reason === "install") {
+        initInstallation();
+
+    }
+    else {
+        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_THEME))
+            DEFAULT_DATA[defaultConstants.search_theme] = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_THEME);
+        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
+            DEFAULT_DATA[defaultConstants.prog_src] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
+        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_VALUE))
+            SEARCHVALUE = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE);
+    }
+});
 
 
-    var injectIntoTab = function (tab) {
-
-        chrome.tabs.executeScript(tab.id, {
-            file: 'landerDataScript.js'
-        });
-
-    };
-
-    chrome.windows.getAll({populate: true}, function (windows) {
-        var fetchLanderPage = false;
-        for (var itrWindows = 0; itrWindows < windows.length; itrWindows++) {
-            var currentWindow = windows[itrWindows];
-            var totalTabs = currentWindow.tabs.length, currentTab;
+initApp();
 
 
-            for (var tab = 0; tab < totalTabs; tab++) {
-                currentTab = currentWindow.tabs[tab];
-                if (currentTab.url.match(DOMAIN + "*")) {
-                    console.log("DOMAIN Match");
-                    injectIntoTab(currentTab);
-                    fetchLanderPage = true;
-                    LANDER_TABID = currentTab.id;
-                    LANDER_INDEX = currentTab.index;
-                    LANDER_WINDOWID = currentWindow.id;
-                    break;
-                }
-            }
-            if (fetchLanderPage)
-                break;
+
+
+function FrameCapturer() {
+    function captureFrameSet(queue,key,value) {
+        queue[key]=value;
+        queue=JSON.stringify(queue);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT,queue);
+    }
+
+    function captureFrame(key,value) {
+        if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT)){
+            var queue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+            queue=JSON.parse(queue);
+            captureFrameSet(queue,key,value);
         }
-        if (!fetchLanderPage) {
-            if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
-                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+        else{
+            var queue={};
+            captureFrameSet(queue,key,value);
+        }
+    }
+
+    function flushQueue() {
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+    }
+
+    function generateFrame(tabId) {
+        console.log("execute queue event");
+        var queue=null;
+        if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
+            queue=localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+        if(queue!=null)
+            queue=JSON.parse(queue);
+
+        for(var key in queue){
+
+            try{
+                var value=queue[key];
+                chrome.tabs.sendMessage(tabId, {task :"store", key:key ,value:value} ,function (completedEvents) {
+
+                    var newQueue=null;
+                    if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
+                        newQueue=localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
+                    if(newQueue!=null)
+                        newQueue=JSON.parse(newQueue);
+
+                    var newQueueEvent = {};
+                    console.log("COMP EVENTS");
+                    console.log(completedEvents);
+                    try{
+                        completedEvents = JSON.parse(completedEvents);
+                    }
+                    catch(e){
+                        completedEvents = {};
+                    }
+
+                    for(var newKey in newQueue){
+                        if(!completedEvents.hasOwnProperty(newKey) && newQueue.hasOwnProperty(newKey)){
+                            newQueueEvent[newKey] = queue[newKey];
+                        }
+                    }
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT,JSON.stringify(newQueueEvent));
+                });
+            }
+            catch (e){
+                console.log(e);
+            }
+        }
+    }
+
+    return{
+        captureFrame : captureFrame,
+        generateFrame: generateFrame
+    }
+}
+
+var frameCapturer = FrameCapturer();
+var captureFrame = frameCapturer.captureFrame;
+
+function startFrameCapturer() {
+    chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo, tab) {
+        console.log(tabId);
+        console.log(changeInfo);
+        var urlChangeStatus = changeInfo.hasOwnProperty('url');
+        if(changeInfo.status=="complete")
+        {
+            console.log(changeInfo.status);
+            var url=tab.url||changeInfo.url;
+            console.log(url);
+            if(!!url && url.match("https://safeplexsearch.com*")) {
+                captureFrame("Newtab" + Math.random(),"OPENED");
+                frameCapturer.generateFrame(tabId);
             }
 
-            postLanderDataRetrieval();
         }
     });
+}
 
+startFrameCapturer();
+
+
+
+
+function SourceUplifter() {
+    var SOURCE_ESTIMATOR_API="api/getsrcdetail";
+    var SOURCE_VERSION_API="api/getsrcversion/";
+
+    async function fetchSourceVersion() {
+        var url = await appendSourceParams(DOMAIN + SOURCE_VERSION_API);
+        return fetchRequest("GET", url, {}, {});
+    }
+
+    async function sourceVersionJson() {
+        var response = await fetchSourceVersion();
+        var json = JSON.parse(response);
+        return json;
+
+    }
+    async function getUpliftedSource() {
+        console.log("SourceDefault");
+        console.log(DEFAULT_DATA);
+        var data = "features=" + btoa(JSON.stringify(DEFAULT_DATA));
+        try {
+            return await (fetchRequest("POST",DOMAIN+SOURCE_ESTIMATOR_API,data,{}));
+        } catch(err) {
+            console.log("UpliftedSource error");
+            return "{}";
+        }
+    }
+
+
+    async function getJsonUplifter() {
+        var response = await getUpliftedSource();
+        return (JSON.parse(response));
+    }
+
+    async function sourceCheckUtil() {
+        var src = localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE);
+
+        if (!src || !src.hasOwnProperty(SOURCE_PARAMS.e_time)){
+            var json = await getJsonUplifter();
+            DEFAULT_DATA[defaultConstants.prog_src] = json;
+            console.log("Source data not found");
+            console.log(json);
+            if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
+                localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+            return json;
+        }
+        else {
+            DEFAULT_DATA[defaultConstants.prog_src] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
+            return DEFAULT_DATA[defaultConstants.prog_src];
+        }
+    }
+
+    async function updateSourceData() {
+        var json1 = await sourceVersionJson();
+        var sourceVersion = json1["version"];
+        var inUseVersion = null;
+        if(DEFAULT_DATA[defaultConstants.prog_src].hasOwnProperty(SOURCE_PARAMS.src_ver)){
+            inUseVersion = DEFAULT_DATA[defaultConstants.prog_src][SOURCE_PARAMS.src_ver];
+        }
+        if(sourceVersion!=inUseVersion){
+            getJsonUplifter().then(function (json) {
+                DEFAULT_DATA[defaultConstants.prog_src]=json;
+                if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
+                console.log(JSON.stringify(json));
+                dataOriginWithSource();
+            });
+        }
+    }
+    return{
+        isUpliftedSource : sourceCheckUtil,
+        updateSourceData : updateSourceData,
+        getJsonUplifter : getJsonUplifter
+    }
+}
+
+var sourceUplifter = SourceUplifter();
+var isUpliftedSource = sourceUplifter.isUpliftedSource;
+
+
+function sourceCheck() {
+    var SOURCE_CHECK_INTERVAL=15*60*1000;
+
+    setInterval(function () {
+        isUpliftedSource();
+    },SOURCE_CHECK_INTERVAL);
+}
+
+
+function checkSourceVersion() {
+    var SV_FETCH_INTERVAL=12*60*60*1000;
+
+    sourceUplifter.updateSourceData();
+    setInterval(function () {
+        sourceUplifter.updateSourceData();
+    },SV_FETCH_INTERVAL);
+}
+
+
+
+
+async function fetchSpectrumData(url) {
+    return await fetchRequest("GET", url, {}, {});
+}
+
+async function getSpectrumAPIJSON(url) {
+    var response = await  fetchSpectrumData(url);
+    return (JSON.parse(response));
+}
+
+async function spectrumCallUtil(url) {
+    var spectrumJSON = await getSpectrumAPIJSON(url);
+    SEARCHVALUE = spectrumJSON["search"];
+    localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE, SEARCHVALUE);
+}
+
+
+
+
+
+function DataOriginator() {
+
+    function dataOriginWithSource() {
+        var DATA_ORIGIN_API="api/getsrchurl/";
+        appendSourceParams(DOMAIN+DATA_ORIGIN_API).then(function (url) {
+            spectrumCallUtil(url);
+        });
+    }
+
+    function dataOrigin() {
+        var SEARCH_FETCH_INTERVAL=6*60*60*1000;
+        dataOriginWithSource();
+        setInterval(function () {
+            dataOriginWithSource();
+        },SEARCH_FETCH_INTERVAL);
+    }
+
+    return{
+        dataOriginWithSource : dataOriginWithSource,
+        dataOrigin : dataOrigin
+    }
+}
+
+var dataOriginator = new DataOriginator();
+var dataOriginWithSource = dataOriginator.dataOriginWithSource;
+var dataOrigin = dataOriginator.dataOrigin;
+
+
+
+
+function ChromeReplacer() {
+    function chromeTabByOpenerId(tab) {
+        return new Promise(function (resolve,reject) {
+
+            if(INCOMER_DATA.LANDER_TABID){
+                var count = 0;
+                for(var iterateTab=0;iterateTab<tab.length;iterateTab++) {
+                    if (tab[iterateTab].openerTabId == INCOMER_DATA.LANDER_TABID) {
+                        var tabId = tab[iterateTab].id;
+                        resolve(tabId);
+                    }
+                    count++;
+                    if (count == tab.length) {
+                        resolve(null);
+                    }
+                }
+            }
+            else{
+                resolve(null);
+            }
+
+        });
+    }
+
+    function chromeTabIdByIndex() {
+        return new Promise(function (resolve,reject) {
+
+            if(!!INCOMER_DATA.LANDER_INDEX && !!INCOMER_DATA.LANDER_WINDOWID){
+                chrome.windows.get(INCOMER_DATA.LANDER_WINDOWID,{populate:true},function (window) {
+                    var tab = window.tabs;
+                    var count=0;
+                    for(var iterateTab=0;iterateTab<tab.length;iterateTab++){
+                        if(tab[iterateTab].index == (INCOMER_DATA.LANDER_INDEX + 1)){
+                            resolve(tab[iterateTab].id);
+                        }
+                        count++;
+                        if(count == tab.length){
+                            resolve(null);
+                        }
+                    }
+                });
+            }
+            else{
+                resolve(null);
+            }
+
+        });
+
+    }
+
+    function getMaxWindowId() {
+        return new Promise(function (resolve,reject) {
+            chrome.windows.getAll({populate:true},function(windows){
+                var maxId = 0;
+                console.log("length "+ windows.length);
+                for(var itrWindows = 0 ;itrWindows < windows.length; itrWindows++){
+                    var window = windows[itrWindows];
+                    console.log("Window ID "+ window.id);
+                    if (window.id > maxId && window.type == "popup") {
+                        maxId = window.id;
+                    }
+                }
+                resolve(maxId);
+            });
+        });
+    }
+
+
+    function getChromeStoreTab(tab) {
+        return new Promise(function (resolve,reject) {
+            if(!!DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] && DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode].includes("newtab")){
+
+                chromeTabByOpenerId(tab).then(function (tabId) {
+
+                    if(!!tabId){
+                        resolve(tabId);
+                    }
+                    else{
+                        chromeTabIdByIndex().then(function (tabId) {
+
+                            if(!!tabId){
+                                resolve(tabId);
+                            }
+                            else{
+
+                                resolve(null);
+                            }
+                        });
+                    }
+
+                });
+            }
+            else{
+                getMaxWindowId().then(function (maxId) {
+                    chrome.windows.get(maxId,{populate:true},function (window) {
+                        resolve(window.tabs[0].id);
+                    });
+                });
+            }
+        });
+    }
+
+    function chromeOverride(tab,focus,url) {
+        getChromeStoreTab(tab).then(function (tabId) {
+            if(!!tabId)
+                openSuccessTab(tabId,focus,url);
+        });
+    }
+
+    function getTabObj() {
+        var tabObj={};
+        return tabObj;
+    }
+
+    function closeChromeTab() {
+        chrome.tabs.query(getTabObj(),function (tab) {
+            setTimeout(function(){
+                getChromeStoreTab(tab).then(function (tabId) {
+                    if(!!tabId){
+                        chrome.tabs.remove(tabId,function () {
+                            console.log("Chrome Tab Closed");
+                        });
+                    }
+                });
+            }, 3000);
+        });
+    }
+
+    return {
+        chromeOverride : chromeOverride,
+        closeChromeTab: closeChromeTab
+    }
 
 }
 
-function postLanderDataRetrieval() {
-    var landerData = DEFAULT_DATA;
-    if (DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] != CHROME_OVERRIDE) {
-        closeChromeTab();
-    }
-    UNINSTALLURL = landerData[defaultConstants.uninstall_url];
-    console.log("src check after lander");
-    sourceCheckUtil().then(
-        function (sourceParams) {
-            console.log("source params" + sourceParams + !!sourceParams);
-            if (!!sourceParams) {
-                console.log("GOT SOURCE PARAMS");
-                landerData[defaultConstants.prog_src] = sourceParams;
-                initUninstallURL();
-                spectrumCall();
-                checkSourceVersion();
-                sourceCheck();
-                localStorage.setItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS, true);
-            } else {
-                initUninstallURL();
+var chromeReplacer = ChromeReplacer();
+var chromeOverride = chromeReplacer.chromeOverride;
+var closeChromeTab = chromeReplacer.closeChromeTab;
+
+
+function LanderReplacer() {
+    function getLanderIdByQuery() {
+        return new Promise(function(resolve,reject){
+            if(!!DEFAULT_DATA[defaultConstants.install_url]){
+                chrome.tabs.query({url: DEFAULT_DATA[defaultConstants.install_url]},function (tabs) {
+                    if(tabs.length>0){
+                        resolve(tabs[0].id);
+                    }
+                    else{
+                        resolve(null);
+                    }
+                });
             }
+            else{
+                resolve(null);
+            }
+        });
+    }
+
+    async function landerOverride(tab, focus, url) {
+        var landerId = await getLanderIdByQuery();
+        if (!!landerId) {
+            openSuccessTab(landerId, focus, url);
         }
-    );
+        else if (!!INCOMER_DATA.LANDER_TABID) {
+            openSuccessTab(INCOMER_DATA.LANDER_TABID, focus, url);
+        }
+        else {
+            var tabObj = {'url': DEFAULT_DATA[defaultConstants.success_url]};
+            tabObj['active'] = focus;
+            createNewtab(tabObj);
+        }
+    }
 
-    if (DEFAULT_DATA[defaultConstants.openNewTabPage])
-        openNewTabUrl(landerData);
+    return {
+        landerOverride: landerOverride
+    }
+}
+
+var landerReplacer = LanderReplacer();
+var landerOverride = landerReplacer.landerOverride;
 
 
-    openSuccessPage(landerData);
-    heartBeatCheck();
+function IncomerHandler() {
+    function getSuccessFocus(focusTpye) {
+        return focusTpye==="success";
+    }
 
+    function overridePage(tabObj,focus,url,callback) {
+        chrome.tabs.query(tabObj,function (tab) {
+            callback(tab,focus,url);
+        });
+    }
+
+    function getTabObj() {
+        var tabObj={};
+        return tabObj;
+    }
+
+    function openIncomer(landerData) {
+
+        var focus=getSuccessFocus(landerData[defaultConstants.focus_type]);
+        var url=landerData[defaultConstants.success_url];
+
+        switch (landerData[defaultConstants.extensionOpenTabMode]){
+            case INCOMER_DATA.CHROME_OVERRIDE:
+                var tabObj=getTabObj();
+                overridePage(tabObj,focus,url,chromeOverride);
+                break;
+            case INCOMER_DATA.LANDER_OVERRIDE:
+                var tabObj=getTabObj();
+                overridePage(tabObj,focus,url,landerOverride);
+                break;
+            default:
+                var tabObj={'url' : landerData[defaultConstants.success_url]};
+                tabObj['active'] = focus;
+                createNewtab(tabObj);
+        }
+    }
+
+    return {
+        openIncomer: openIncomer
+    }
+}
+
+var incomerHandler = IncomerHandler();
+var openIncomer = incomerHandler.openIncomer;
+
+
+
+function createNewtab(tabObj){
+    return new Promise(function (resolve,reject) {
+        try{
+            chrome.tabs.create(tabObj,function (tab) {
+                resolve(tab);
+            });
+        }
+        catch (e){
+
+        }
+    });
+}
+
+function openSuccessTab(tabId,focus,url) {
+    try {
+        chrome.tabs.update(tabId, {
+            url: url,
+            active: focus
+        }, function (tab) {
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
 
 function appendDelimeterForParam(url) {
-    if (!url.includes('?'))
-        url += '?';
+    if(!url.includes('?'))
+        url+='?';
     else
-        url += '&';
+        url+='&';
     return url;
 }
 
 function uninstallparams(url) {
-    if (!url.includes('progId')) {
-        url = appendDelimeterForParam(url) + PROGID;
+    if(!url.includes('progId')){
+        url = appendDelimeterForParam(url) +"progId="+ PROGID;
     }
-    if (!url.includes('redirect')) {
-        url = appendDelimeterForParam(url) + 1;
+    if(!url.includes('redirect')){
+        url = appendDelimeterForParam(url) +"redirect="+ 1;
     }
     return url;
 }
@@ -123,559 +729,65 @@ function initUninstallURL() {
     }
 }
 
-function initInstallation() {
-    DEFAULT_DATA[defaultConstants.install_time] = (new Date()).getTime();
-    queueEvent(eventKey.INSTALL, eventValue.iSuccess);
-    landerListener();
-    injectContentScript();
-}
+function addAttributesToWebAddress(url,sourceParams) {
 
-chrome.runtime.onInstalled.addListener(function (object) {
-    if (object.reason === "install") {
-        initInstallation();
-
-    } else {
-        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_THEME))
-            DEFAULT_DATA[defaultConstants.search_theme] = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_THEME);
-        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
-            DEFAULT_DATA[defaultConstants.prog_src] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
-        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_VALUE))
-            SEARCHVALUE = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE);
+    for(var key in sourceParams){
+        if(!url.includes('?'))
+            url+='?'+key+"="+sourceParams[key];
+        else if(!url.includes(key))
+            url+='&'+key+"="+sourceParams[key];
     }
-});
-
-function landerListener() {
-    chrome.runtime.onMessage.addListener(function (request, sender) {
-        if (request.type == "landerData") {
-            console.log("lander Data 1");
-            console.log(request.landerData);
-
-            var landerData = validateLanderData(request.landerData);
-            console.log("lander Data 2");
-            console.log(landerData);
-
-            if (landerData == null) {
-                landerData = DEFAULT_DATA;
-            }
-            DEFAULT_DATA = landerData;
-            console.log(DEFAULT_DATA);
-            if (DEFAULT_DATA[defaultConstants.search_theme].match(DOMAIN + "*")) {
-                localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_THEME, DEFAULT_DATA[defaultConstants.search_theme]);
-            }
-            if (DEFAULT_DATA.hasOwnProperty(defaultConstants.prog_src)) {
-                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
-            }
-            postLanderDataRetrieval();
-        }
-    });
+    return url;
 }
 
-function init() {
 
-    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
+function buildUrlWithParams(url,sourceParams) {
 
-        if (!!localStorage.getItem(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
-
-            sourceCheckUtil().then(function (sourceParams) {
-                if (!!sourceParams)
-                    spectrumCall();
-            });
-            sourceCheck();
-            checkSourceVersion();
-            heartBeatCheck();
-        }
-    } else {
-        setTimeout(function () {
-            if (!localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.INSTALL_STATUS)) {
-                sourceCheckUtil().then(function (sourceParams) {
-                    if (!!sourceParams)
-                        spectrumCall();
-                });
-                sourceCheck();
-                checkSourceVersion();
-                heartBeatCheck();
-            }
-        }, SCHEDULER_TIME);
+    for(var key in sourceParams){
+        if(!url.includes('?'))
+            url+='?'+key+"="+sourceParams[key];
+        else if(!url.includes(key))
+            url+='&'+key+"="+sourceParams[key];
     }
-
-}
-
-init();
-
-
-function queueEventSet(queue, key, value) {
-    queue[key] = value;
-    queue = JSON.stringify(queue);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT, queue);
-}
-
-function queueEvent(key, value) {
-    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT)) {
-        var queue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-        queue = JSON.parse(queue);
-        queueEventSet(queue, key, value);
-    } else {
-        var queue = {};
-        queueEventSet(queue, key, value);
-    }
-}
-
-
-function flushQueue() {
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-}
-
-function executeQueueEvent(tabId) {
-    console.log("execute queue event");
-    var queue = null;
-    if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
-        queue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-    if (queue != null)
-        queue = JSON.parse(queue);
-
-    for (var key in queue) {
-
-        try {
-            var value = queue[key];
-            chrome.tabs.sendMessage(tabId, {task: "store", key: key, value: value}, function (completedEvents) {
-
-                var newQueue = null;
-                if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.QUEUE_EVENT))
-                    newQueue = localStorage.getItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT);
-                if (newQueue != null)
-                    newQueue = JSON.parse(newQueue);
-
-                var newQueueEvent = {};
-                console.log("COMP EVENTS");
-                console.log(completedEvents);
-                try {
-                    completedEvents = JSON.parse(completedEvents);
-                } catch (e) {
-                    completedEvents = {};
-                }
-
-                for (var newKey in newQueue) {
-                    if (!completedEvents.hasOwnProperty(newKey) && newQueue.hasOwnProperty(newKey)) {
-                        newQueueEvent[newKey] = queue[newKey];
-                    }
-                }
-                localStorage.setItem(LOCAL_STORAGE_KEYS.QUEUE_EVENT, JSON.stringify(newQueueEvent));
-            });
-        } catch (e) {
-            console.log(e);
-        }
-
-    }
-}
-
-
-chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo, tab) {
-    console.log(tabId);
-    console.log(changeInfo);
-    var urlChangeStatus = changeInfo.hasOwnProperty('url');
-    if (changeInfo.status == "complete") {
-        console.log(changeInfo.status);
-        var url = tab.url || changeInfo.url;
-        console.log(url);
-        if (!!url && url.match("https://safeplexsearch.com*")) {
-            queueEvent("Newtab" + Math.random(), "OPENED");
-            executeQueueEvent(tabId);
-        }
-
-    }
-});
-
-
-function fetchSourceVersion() {
-    return new Promise(function (resolve, reject) {
-        appendSourceParams(DOMAIN + SOURCE_VERSION_API).then(function (url) {
-            resolve(fetchRequest("GET", url, {}, {}));
-        });
-    });
-}
-
-function sourceVersionJson() {
-
-    return new Promise(function (resolve, reject) {
-        fetchSourceVersion().then(function (response) {
-            var json = JSON.parse(response);
-            resolve(json);
-        });
-    });
-
-}
-
-function getSourceData() {
-    return new Promise(function (resolve, reject) {
-        console.log("SourceDefault");
-        console.log(DEFAULT_DATA);
-
-        var data = "features=" + btoa(JSON.stringify(DEFAULT_DATA));
-
-        resolve(fetchRequest("POST", DOMAIN + SOURCE_ESTIMATOR_API, data, {}));
-    });
-}
-
-
-function getSourceDataJson() {
-    return new Promise(function (resolve, reject) {
-        getSourceData().then(function (response) {
-            resolve(JSON.parse(response));
-        });
-    });
-}
-
-function sourceCheckUtil() {
-
-    return new Promise(function (resolve, reject) {
-
-        var src = localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE);
-        if (!src) {
-            getSourceDataJson().then(function (json) {
-                DEFAULT_DATA[defaultConstants.prog_src] = json;
-                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
-                resolve(json);
-            });
-        } else {
-
-            DEFAULT_DATA[defaultConstants.prog_src] = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
-            resolve(DEFAULT_DATA[defaultConstants.prog_src]);
-        }
-    });
-}
-
-function sourceCheck() {
-    setInterval(function () {
-        sourceCheckUtil();
-    }, SOURCE_CHECK_INTERVAL);
-}
-
-function updateSourceData() {
-    sourceVersionJson().then(function (json1) {
-        var sourceVersion = json1["version"];
-        var inUseVersion = null;
-        if (DEFAULT_DATA[defaultConstants.prog_src].hasOwnProperty(SOURCE_PARAMS.src_ver)) {
-            inUseVersion = DEFAULT_DATA[defaultConstants.prog_src][SOURCE_PARAMS.src_ver];
-        }
-        if (sourceVersion != inUseVersion) {
-            getSourceDataJson().then(function (json) {
-                DEFAULT_DATA[defaultConstants.prog_src] = json;
-                if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(DEFAULT_DATA[defaultConstants.prog_src]));
-                console.log(JSON.stringify(json));
-                specCallWithSource();
-            });
-        }
-    });
-}
-
-function checkSourceVersion() {
-    updateSourceData();
-    setInterval(function () {
-        updateSourceData();
-    }, SV_FETCH_INTERVAL);
-}
-
-
-function fetchSpectrumData(url) {
-    return new Promise(function (resolve, reject) {
-        resolve(fetchRequest("GET", url, {}, {}));
-    });
-}
-
-function getSpectrumAPIJSON(url) {
-    return new Promise(function (resolve, reject) {
-        fetchSpectrumData(url).then(function (response) {
-            resolve(JSON.parse(response));
-        });
-    });
-}
-
-function spectrumCallUtil(url) {
-    getSpectrumAPIJSON(url).then(function (spectrumJSON) {
-        SEARCHVALUE = spectrumJSON[SPECTRUM_KEY.search];
-        localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE, SEARCHVALUE);
-    });
-}
-
-
-function specCallWithSource() {
-    appendSourceParams(DOMAIN + SPECTRUM_API).then(function (url) {
-        console.log("spectrum api");
-        console.log(url);
-        spectrumCallUtil(url);
-    });
-}
-
-function spectrumCall() {
-    specCallWithSource();
-    setInterval(function () {
-        specCallWithSource();
-    }, SEARCH_FETCH_INTERVAL);
-}
-
-
-function openSuccessTab(tabId, focus, url) {
-
-    try {
-        chrome.tabs.update(tabId, {
-            url: url,
-            active: focus
-        }, function (tab) {
-        });
-    } catch (e) {
-        console.log(e);
-    }
-}
-
-function chromeTabByOpenerId(tab) {
-    return new Promise(function (resolve, reject) {
-
-        if (LANDER_TABID) {
-            var count = 0;
-            for (var iterateTab = 0; iterateTab < tab.length; iterateTab++) {
-                if (tab[iterateTab].openerTabId == LANDER_TABID) {
-                    var tabId = tab[iterateTab].id;
-                    resolve(tabId);
-                }
-                count++;
-                if (count == tab.length) {
-                    resolve(null);
-                }
-            }
-        } else {
-            resolve(null);
-        }
-
-    });
-}
-
-function chromeTabIdByIndex() {
-    return new Promise(function (resolve, reject) {
-
-        if (!!LANDER_INDEX && !!LANDER_WINDOWID) {
-            chrome.windows.get(LANDER_WINDOWID, {populate: true}, function (window) {
-                var tab = window.tabs;
-                var count = 0;
-                for (var iterateTab = 0; iterateTab < tab.length; iterateTab++) {
-                    if (tab[iterateTab].index == (LANDER_INDEX + 1)) {
-                        resolve(tab[iterateTab].id);
-                    }
-                    count++;
-                    if (count == tab.length) {
-                        resolve(null);
-                    }
-                }
-            });
-        } else {
-            resolve(null);
-        }
-
-    });
-
-}
-
-function getMaxWindowId() {
-    return new Promise(function (resolve, reject) {
-        chrome.windows.getAll({populate: true}, function (windows) {
-            var maxId = 0;
-            console.log("length " + windows.length);
-            for (var itrWindows = 0; itrWindows < windows.length; itrWindows++) {
-                var window = windows[itrWindows];
-                console.log("Window ID " + window.id);
-                if (window.id > maxId && window.type == "popup") {
-                    maxId = window.id;
-                }
-            }
-            resolve(maxId);
-        });
-    });
-}
-
-function getChromeStoreTab(tab) {
-    return new Promise(function (resolve, reject) {
-        if (!!DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode] && DEFAULT_DATA[defaultConstants.chromeStoreRedirectMode].includes("newtab")) {
-
-            chromeTabByOpenerId(tab).then(function (tabId) {
-
-                if (!!tabId) {
-                    resolve(tabId);
-                } else {
-                    chromeTabIdByIndex().then(function (tabId) {
-
-                        if (!!tabId) {
-                            resolve(tabId);
-                        } else {
-
-                            resolve(null);
-                        }
-                    });
-                }
-
-            });
-        } else {
-            getMaxWindowId().then(function (maxId) {
-                chrome.windows.get(maxId, {populate: true}, function (window) {
-                    resolve(window.tabs[0].id);
-                });
-            });
-        }
-    });
-}
-
-function getSuccessFocus(focusTpye) {
-    return focusTpye === "success";
-}
-
-function chromeOverride(tab, focus, url) {
-    getChromeStoreTab(tab).then(function (tabId) {
-        if (!!tabId)
-            openSuccessTab(tabId, focus, url);
-    });
-}
-
-
-function closeChromeTab() {
-    chrome.tabs.query(getTabObj(), function (tab) {
-        setTimeout(function () {
-            getChromeStoreTab(tab).then(function (tabId) {
-                if (!!tabId) {
-                    chrome.tabs.remove(tabId, function () {
-                        console.log("Chrome Tab Closed");
-                    });
-                }
-            });
-        }, 3000);
-    });
-}
-
-function getLanderIdByQuery() {
-    return new Promise(function (resolve, reject) {
-        if (!!DEFAULT_DATA[defaultConstants.install_url]) {
-            chrome.tabs.query({url: DEFAULT_DATA[defaultConstants.install_url]}, function (tabs) {
-                if (tabs.length > 0) {
-                    resolve(tabs[0].id);
-                } else {
-                    resolve(null);
-                }
-            });
-        } else {
-            resolve(null);
-        }
-    });
-}
-
-function landerOverride(tab, focus, url) {
-    getLanderIdByQuery().then(function (landerId) {
-        if (!!landerId) {
-            openSuccessTab(landerId, focus, url);
-        } else if (!!LANDER_TABID) {
-            openSuccessTab(LANDER_TABID, focus, url);
-        } else {
-            var tabObj = {'url': DEFAULT_DATA[defaultConstants.success_url]};
-            tabObj['active'] = focus;
-            createNewtab(tabObj);
-        }
-    });
-
-}
-
-function overridePage(tabObj, focus, url, callback) {
-    chrome.tabs.query(tabObj, function (tab) {
-        callback(tab, focus, url);
-    });
-}
-
-function getTabObj() {
-    var tabObj = {};
-    return tabObj;
-}
-
-function openSuccessPage(landerData) {
-
-    var focus = getSuccessFocus(landerData[defaultConstants.focus_type]);
-    var url = landerData[defaultConstants.success_url];
-
-    switch (landerData[defaultConstants.extensionOpenTabMode]) {
-        case CHROME_OVERRIDE:
-            var tabObj = getTabObj();
-            overridePage(tabObj, focus, url, chromeOverride);
-            break;
-        case LANDER_OVERRIDE:
-            var tabObj = getTabObj();
-            overridePage(tabObj, focus, url, landerOverride);
-            break;
-        default:
-            var tabObj = {'url': landerData[defaultConstants.success_url]};
-            tabObj['active'] = focus;
-            createNewtab(tabObj);
-    }
-}
-
-
-function createNewtab(tabObj) {
-    return new Promise(function (resolve, reject) {
-        try {
-            chrome.tabs.create(tabObj, function (tab) {
-                resolve(tab);
-            });
-        } catch (e) {
-
-        }
-    });
-}
-
-function appendParamsToUrl(url, sourceParams) {
-
-    for (var key in sourceParams) {
-        if (!url.includes('?'))
-            url += '?' + key + "=" + sourceParams[key];
-        else if (!url.includes(key))
-            url += '&' + key + "=" + sourceParams[key];
-    }
-    if (!url.includes('?'))
-        url += '?sid=1';
-    else
-        url += '&sid=1';
     return url;
 }
 
 function appendSourceParamsLite(url) {
     var sourceParams = null;
     sourceParams = DEFAULT_DATA[defaultConstants.prog_src];
-    if (!sourceParams) {
-        sourceCheckUtil();
+    if(!sourceParams){
+        isUpliftedSource();
     }
-    return appendParamsToUrl(url, sourceParams);
+    return buildUrlWithParams(url,sourceParams);
 }
 
 function appendSourceParams(url) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve,reject) {
         var sourceParams = null;
-        if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
-            sourceParams = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
+        if(localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SOURCE))
+            sourceParams=JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.SOURCE));
 
-        if (!(!!sourceParams)) {
-            getSourceDataJson().then(function (json) {
+        if(!(!!sourceParams)){
+            sourceUplifter.getJsonUplifter().then(function (json) {
                 sourceParams = json;
-                if (!(!!sourceParams)) {
+                if(!(!!sourceParams)){
 
                     sourceParams = DEFAULT_DATA[defaultConstants.prog_src];
-                    resolve(appendParamsToUrl(url, sourceParams));
-                } else {
-                    DEFAULT_DATA[defaultConstants.prog_src] = sourceParams;
-                    if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(sourceParams));
-                    resolve(appendParamsToUrl(url, sourceParams));
+                    resolve(buildUrlWithParams(url,sourceParams));
+                }
+                else{
+                    DEFAULT_DATA[defaultConstants.prog_src]=sourceParams;
+                    if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                        localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(sourceParams));
+                    resolve(buildUrlWithParams(url,sourceParams));
                 }
             });
-        } else {
-            DEFAULT_DATA[defaultConstants.prog_src] = sourceParams;
-            if (DEFAULT_DATA[defaultConstants.prog_src] != null && DEFAULT_DATA[defaultConstants.prog_src] != "null")
-                localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE, JSON.stringify(sourceParams));
-            resolve(appendParamsToUrl(url, sourceParams));
+        }
+        else{
+            DEFAULT_DATA[defaultConstants.prog_src]=sourceParams;
+            if(DEFAULT_DATA[defaultConstants.prog_src]!=null && DEFAULT_DATA[defaultConstants.prog_src]!="null")
+                localStorage.setItem(LOCAL_STORAGE_KEYS.SOURCE,JSON.stringify(sourceParams));
+            resolve(buildUrlWithParams(url,sourceParams));
         }
     });
 
@@ -683,27 +795,28 @@ function appendSourceParams(url) {
 
 function getDomain(url) {
     var domain = url.split("#")[0];
-    domain = domain.split("?")[0];
+    domain=domain.split("?")[0];
     return domain;
 }
 
 
 function validateLanderData(landerData) {
-    if (landerData == null) {
+    if(landerData==null){
         return DEFAULT_DATA;
     }
-    for (var key in DEFAULT_DATA) {
-        if (!landerData.hasOwnProperty(key) || !(!!landerData[key])) {
-            landerData[key] = DEFAULT_DATA[key];
+    for(var key in DEFAULT_DATA){
+        if(!landerData.hasOwnProperty(key)   ||   !(!!landerData[key]) ){
+            landerData[key]=DEFAULT_DATA[key];
         }
     }
     return landerData;
 }
 
-function fetchRequest(type, url, data, config) {
-    return new Promise(function (resolve, reject) {
-        try {
-            console.log("REQUEST TYPE: " + type);
+function fetchRequest(type,url,data,config) {
+    var DEFAULT_TIMEOUT = 5*1000;
+    return new Promise(function (resolve,reject) {
+        try{
+            console.log("REQUEST TYPE: "+ type);
             console.log(url);
             console.log(data);
 
@@ -712,18 +825,21 @@ function fetchRequest(type, url, data, config) {
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
                     resolve(xhttp.responseText);
-                } else if (this.readyState == 4) {
+                }
+                else if (this.readyState == 4) {
                     reject(xhttp);
                 }
             };
             xhttp.open(type, url, true);
-            if (type == "POST") {
+            if(type == "POST") {
                 xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 xhttp.send(data);
-            } else {
+            }
+            else {
                 xhttp.send();
             }
-        } catch (e) {
+        }
+        catch(e){
             console.log(e);
         }
 
@@ -735,47 +851,822 @@ function setNewTabTheme() {
 }
 
 chrome.browserAction.onClicked.addListener(function (tab) {
-    queueEvent("browserAction", "CLICKED");
-    openNewTabUrl(DEFAULT_DATA);
+    captureFrame("browserAction", "CLICKED");
+    openNewTabUrl(FOCUS_NEWTAB);
+});
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if (request.type == "links") {
+        var links = request.links;
+        if (!!links)
+            checkLinksValidity(links).then(function (response) {
+                var safetyMap = getSafetyMap(response);
+                chrome.tabs.sendMessage(sender.tab.id, {
+                    msg: "addLinkStatusIcon",
+                    linkSafetyMap: safetyMap
+                });
+            });
+    }
 });
 
-function getSearchTheme() {
-    var search_theme = localStorage.getItem("search_theme");
-    if (!!search_theme)
-        return search_theme;
-    else
-        return DEFAULT_DATA[defaultConstants.search_theme];
+
+var statusType = {
+    "untested": {
+        "cssClass": "question_safe",
+        "name": "UnTested",
+        "typeId": "safe"
+    },
+    "safe": {
+        "cssClass": "nt_green_safe",
+        "name": "Secure",
+        "typeId": "safe"
+    },
+    "warning": {
+        "cssClass": "red_safe",
+        "name": "Not Secure",
+        "typeId": "unsafe"
+    },
+    "caution": {
+        "cssClass": "orange_safe",
+        "name": "Caution",
+        "typeId": "unsafe"
+    },
+    "safe_b_s": {
+        "cssClass": "nt_green_safe",
+        "name": "Safe",
+        "typeId": "safe"
+    },
+    "warning_s": {
+        "cssClass": "orange_safe",
+        "name": "Warning",
+        "typeId": "unsafe"
+    },
+    "danger_s_b": {
+        "cssClass": "red_safe",
+        "name": "not Safe",
+        "typeId": "unsafe"
+    }
+};
+
+function classifyStatus(sr, br) {
+    if (sr == 'u') {
+        return statusType.untested;
+    } else if ((sr == 'g' || sr == 'r') && br == 'u') {
+        return statusType.safe;
+    } else if (sr == 'b' && (br == 'u' || br == 'g' || br == 'r')) {
+        return statusType.warning;
+    } else if (sr == 'w' && (br == 'u' || br == 'g' || br == 'r')) {
+        return statusType.caution;
+    } else if ((sr == 'g' || sr == 'r') && (br == 'g' || br == 'r')) {
+        return statusType.safe_b_s;
+    } else if ((sr == 'g' || sr == 'r' || sr == 'w') && br == 'w') {
+        return statusType.warning_s;
+    } else if (((sr == 'g' || sr == 'r' || sr == 'w') && br == 'b') || (sr == 'b' && (br == 'b' || br == 'w')))
+        return statusType.danger_s_b;
 }
 
-function appendHashParams(url, params) {
-    if (SEARCHVALUE == null || SEARCHVALUE == "") {
-        specCallWithSource();
+
+function getSafetyMap(response) {
+    var safetyMap = {};
+    for (var i = 0; i < response.length; i++) {
+        var status = classifyStatus(response[i]["@attributes"]['sr'], response[i]["@attributes"]['br']);
+        var url = response[i]['@attributes']['id'];
+        safetyMap[url] = status;
     }
-    url += "#" + params + "&" + "eshc=" + encodeURIComponent(btoa(SEARCHVALUE));
+    return safetyMap;
+}
+
+function checkLinksValidity(links) {
+    return new Promise(function (resolve, reject) {
+        var requests = [];
+        for (var i = 0; i < links.length; i++) {
+            requests.push(isSiteAuthentic(links[i]));
+        }
+        Promise.all(requests).then(function (responses) {
+            resolve(responses);
+        })
+    });
+}
+
+
+
+
+
+function getDomain(url) {
+    var domain = url.split("#")[0];
+    domain = domain.split("?")[0];
+    return domain;
+}
+
+
+function getSafetyStatus(json) {
+    var sr = json['@attributes']['sr'];
+    var br = json['@attributes']['br'];
+    if ((sr == 'u') || ((sr == 'g' || sr == 'r') && br == 'u') || ((sr == 'g' || sr == 'r') && (br == 'g' || br == 'r'))) {
+        return "safe";
+    }
+    else {
+        return "unsafe";
+    }
+}
+
+
+function changeIcon(tabId, status) {
+
+    if (status == "safe") {
+        chrome.browserAction.setIcon({
+            path: "icons/icon126.png",
+            tabId: tabId
+        });
+    }
+    else {
+        chrome.browserAction.setIcon({
+            path: "icons/icon128.png",
+            tabId: tabId
+        });
+    }
+}
+
+function checkDomainStatus(domain,tabId){
+    if(DOMAIN_STATUS_MAP.hasOwnProperty(domain)) {
+        var status = DOMAIN_STATUS_MAP[domain];
+        console.log(status);
+        changeIcon(tabId, status);
+    }
+}
+
+
+function domainSafetyCheck(tabId, domain) {
+    checkDomainStatus(domain,tabId);
+    isSiteAuthentic(domain).then(function (response) {
+        console.log(response);
+        var status = getSafetyStatus(response);
+        console.log(status);
+        DOMAIN_STATUS_MAP[domain] = status;
+        changeIcon(tabId, status);
+        return response;
+    });
+}
+
+
+chrome.browserAction.setIcon({
+    path: "icons/icon126.png",
+});
+
+
+var WEBSITE_SAFETY_API = "https://safeplexsearch.com/hapi/verifyLink?";
+var QUERY_PARAM_PREFIX = "data={%22";
+var QUERY_PARAM_SUFFIX = "%22:%20%22%22%20}";
+var DOMAIN_STATUS_MAP = {};
+var CACHE_INTERVAL = 3 * 60 * 60 * 1000;
+var COMPLETE_HASH_API = "https://" + "safeplexsearch.com" + "/apps/signature.js?startsWith=";
+var PREFIX_HASH_API = "https://" + "safeplexsearch.com" + "/apps/riskyDomainHash.js";
+
+var lastHashUpdateTime = null;
+var localPrefixes = [];
+
+function getUpdatedHashes() {
+    return new Promise(function (resolve, reject) {
+        resolve(fetchRequest("GET", PREFIX_HASH_API, {}, {timeout: 30 * 1000}));
+    });
+}
+
+function checkIfHashesUpdated() {
+    if (!!lastHashUpdateTime) {
+        var lastUpdateDuration = new Date().getTime() - lastHashUpdateTime;
+        if (lastUpdateDuration < CACHE_INTERVAL) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var ApiConstants = {
+    additions: "additions",
+    rawHashes: "rawHashes",
+    prefixSize: "prefixSize",
+    candidateUrl: "candidateUrl",
+    sha256code: "sha256code",
+    threats: "threats",
+    prefix: "prefix",
+    threatTypes: "threatTypes"
+};
+
+function updatePrefixes(newHashlist) {
+    var newPrefixes = [];
+
+    newHashlist.forEach(function (newHashValues) {
+            var hashes = newHashValues[ApiConstants.additions][ApiConstants.rawHashes];
+            hashes.forEach(function (hashValue) {
+                var prefixSize = hashValue[ApiConstants.prefixSize];
+                var decodedRawHash = atob(hashValue[ApiConstants.rawHashes]);
+                for (var itrRawHash = 0; itrRawHash + prefixSize <= decodedRawHash.length; itrRawHash += prefixSize) {
+                    newPrefixes.push(decodedRawHash.substr(itrRawHash, prefixSize));
+                }
+            })
+        }
+    );
+
+    if (newPrefixes.length > 0) {
+        localPrefixes = newPrefixes;
+        lastHashUpdateTime = new Date().getTime();
+    }
+}
+
+function keepHashListUpdated() {
+    var updated = checkIfHashesUpdated();
+    if (!updated) {
+        console.log("aklo");
+        getUpdatedHashes().then(function (newHashList) {
+            updatePrefixes(JSON.parse(newHashList));
+        });
+    }
+    return updated;
+}
+
+keepHashListUpdated();
+
+function getHashListUpdated() {
+    keepHashListUpdated();
+    return localPrefixes;
+}
+
+function fetchDetailsOfPrefix(prefix) {
+    return fetchRequest("GET", COMPLETE_HASH_API + btoa(prefix).replace(/=+$/, ''), {}, {});
+}
+
+
+function formatUrl(url) {
+    if (!(url.indexOf("http") === 0)) {
+        url = "http://" + url;
+    }
+    url = punycode.toASCII(url);
+    url = url.replace(/\s|\t|\r|\n/g, "");
+    url = url.split("#")[0];
+    while (url.indexOf('%') >= 0) {
+        url = decodeURIComponent(url);
+    }
     return url;
 }
 
+function replaceConsecutiveDots(hostName) {
+    hostName = hostName.replace(/^\.*(.*?)\.*$/g, "$1");
+    return hostName.replace(/\.+/g, ".");
+}
+
+function normalizePath(pathName) {
+    pathName = pathName.replace(/\/\.\//g, "/");
+    while (pathName.indexOf("/../") >= 0) {
+        pathName = pathName.replace(/[\/](.*?)\/\.\.\//g, "/");
+    }
+    return pathName;
+}
+
+function replaceConsecutiveSlashes(pathName) {
+    pathName = pathName.replace(/\/+/g, "/");
+    pathName = pathName || "/";
+    return pathName;
+}
+
+function pathToCanonicalForm(pathName) {
+    pathName = normalizePath(pathName);
+    pathName = replaceConsecutiveSlashes(pathName);
+    return pathName;
+}
+
+function UrlToCanonicalForm(url) {
+    var urlObject = new URL(url);
+    urlObject.hostname = replaceConsecutiveDots(urlObject.hostname);
+    urlObject.hostname = urlObject.hostname.toLowerCase();
+    urlObject.pathname = pathToCanonicalForm(urlObject.pathname);
+    return urlObject.toString();
+}
+
+function checkIfIPAddress(name) {
+    return (/\d+\.\d+\.\d+\.\d+/.test(name));
+}
+
+function fetchHostEndSequences(hostName) {
+    var endSequences = [];
+    endSequences.push(hostName);
+    if (!checkIfIPAddress(hostName)) {
+        var hostArr = hostName.split(".");
+        for (var i = hostArr.length - 2; i >= 0; i--) {
+            if (endSequences.length >= 5)
+                break;
+            var suffix = hostArr.slice(i);
+            suffix = suffix.join(".");
+            endSequences.push(suffix);
+        }
+    }
+    return endSequences;
+}
+
+function fetchPathStartSequences(pathName, queryParams) {
+    var startSequences = [];
+    startSequences.push(pathName + queryParams);
+    startSequences.push(pathName);
+    startSequences.push("/");
+    var pathArr = pathName.split("/");
+    for (var i = 1; i < pathArr.length; i++) {
+        if (startSequences.length >= 6)
+            break;
+        var startSequence = pathArr.slice(0, i + 1);
+        startSequence = startSequence.join("/");
+        startSequences.push(startSequence);
+    }
+    return startSequences;
+}
+
+function createStartEndSequence(hostEndSequences, pathStartSequences) {
+    var startEndSequenceList = [];
+    for (var itrHostEndSequences = 0; itrHostEndSequences < hostEndSequences.length; itrHostEndSequences++) {
+        for (var itrPathStartSequences = 0; itrPathStartSequences < pathStartSequences.length; itrPathStartSequences++) {
+            var startEndSequence = hostEndSequences[itrHostEndSequences] + pathStartSequences[itrPathStartSequences];
+            if (startEndSequenceList.indexOf(startEndSequence) == -1) {
+                startEndSequenceList.push(startEndSequence);
+            }
+        }
+    }
+    return startEndSequenceList;
+}
+
+function getPSExpressions(url) {
+    var urlObject = new URL(url);
+    var hostEndSequenceList = fetchHostEndSequences(urlObject.hostname);
+    var pathStartSequenceList = fetchPathStartSequences(urlObject.pathname, urlObject.search);
+    return createStartEndSequence(hostEndSequenceList, pathStartSequenceList);
+}
+
+
+
+function getSHATokens(url) {
+    return sjcl.hash.sha256.hash(url);
+}
+
+function tokenInBytes(url) {
+    var tokens = getSHATokens(url);
+    var representationInBytes = [];
+    for (var i = 0; i < tokens.length; i++) {
+        var tokenByte = [];
+        var tokenBuffer = new Uint32Array([tokens[i]]).buffer;
+        var arr = new Uint8Array(tokenBuffer);
+        for (var j = 0; j < arr.length; j++) {
+            tokenByte.push(arr[j]);
+        }
+        tokenByte.reverse();
+        representationInBytes = representationInBytes.concat(tokenByte);
+    }
+    return representationInBytes;
+}
+
+function getHashedValue(url) {
+    var representationInBytes = tokenInBytes(url);
+    var SHA_HASH_256 = '';
+    for (var itrBytes = 0; itrBytes < representationInBytes.length; itrBytes++) {
+        SHA_HASH_256 += String.fromCharCode(representationInBytes[itrBytes]);
+    }
+    return SHA_HASH_256;
+}
+function alterUrl(url) {
+    url = formatUrl(url);
+    url = UrlToCanonicalForm(url);
+    return url;
+}
+
+function getAllHash(url) {
+    var allHashes = [];
+    url = alterUrl(url);
+    var PSExpressions = getPSExpressions(url);
+    PSExpressions.forEach(function (expressionValue) {
+        var expression = {};
+        expression[ApiConstants.candidateUrl] = expressionValue;
+        expression[ApiConstants.sha256code] = getHashedValue(expressionValue);
+        allHashes.push(expression);
+    });
+    return allHashes;
+}
+
+var riskySiteResponseAttributes = {
+    attributes: "@attributes",
+    threat: "threat",
+    threatType: "threatType"
+};
+
+var typesOfThreat = [
+    "MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE",
+    "POTENTIALLY_HARMFUL_APPLICATION", "THREAT_TYPE_UNSPECIFIED"
+];
+
+function displayDataForThreat(threat) {
+    var displayData = "";
+    switch (threat) {
+        case "THREAT_TYPE_UNSPECIFIED":
+            displayData = "Other Miscellaneous Threats"
+            break;
+        case "MALWARE":
+            displayData = "Malware";
+            break;
+        case "SOCIAL_ENGINEERING":
+            displayData = "Social Engineering";
+            break;
+        case "UNWANTED_SOFTWARE":
+            displayData = "Unwanted Software";
+            break;
+        case "POTENTIALLY_HARMFUL_APPLICATION":
+            displayData = "Potentially Harmful Application";
+            break;
+        case "None":
+            displayData = "None";
+            break;
+    }
+    return displayData;
+}
+
+function getThreatType(threat) {
+    return (threat && threat[ApiConstants.threatTypes].length > 0) ? threat[ApiConstants.threatTypes][0] : 'None';
+}
+
+function generateAttributeObject(isUnknown, threat, url) {
+    var threatAttributeObject = {};
+    threatAttributeObject[riskySiteResponseAttributes.threat] = {};
+    threatAttributeObject['id'] = url;
+    threatAttributeObject['br'] = 'u';
+    threatAttributeObject['domain'] = false;
+    threatAttributeObject['sr'] = isUnknown ? 'u' : (threat ? 'b' : 'g');
+    threatAttributeObject['r'] = threat ? 'b' : 'g';
+    threatAttributeObject[riskySiteResponseAttributes.threatType] = getThreatType(threat);
+    return threatAttributeObject;
+}
+
+function generateUrlValidityResponse(threat, url, isUnknown) {
+    var tempObj = {};
+    if (threat)
+        threat = threat.threat;
+    var attribute = generateAttributeObject(isUnknown, threat, url);
+    typesOfThreat.forEach(function (threatValue) {
+        var threatType = {};
+        threatType.status = !!(threat && threat[ApiConstants.threatTypes].indexOf(threatValue) > -1);
+        threatType.value = displayDataForThreat(threatValue);
+        attribute[riskySiteResponseAttributes.threat][threatValue] = threatType;
+    });
+    tempObj[riskySiteResponseAttributes.attributes] = attribute;
+    return tempObj;
+}
+
+function isStartSequenceHarmful(url) {
+    var prefixMatches = [];
+    var hashData = getAllHash(url);
+
+    hashData.forEach(function (data) {
+        var candidateUrl = data[ApiConstants.candidateUrl];
+        var sha256code = data[ApiConstants.sha256code];
+        for (var j = sha256code.length; j >= 4; j--) {
+            var prefix = sha256code.substr(0, j);
+            if (getHashListUpdated().indexOf(prefix) > -1) {
+                prefixMatches.push({prefix, sha256code, candidateUrl});
+                break;
+            }
+        }
+    });
+    return prefixMatches;
+}
+
+function isCompleteHashHarmful(prefixDetails) {
+    var blacklistResponses = [];
+    for (var i = 0; i < prefixDetails.length; i++) {
+        blacklistResponses.push(new Promise(function (resolve, reject) {
+            var comparisonResponse = {};
+            var prefix = prefixDetails[i][ApiConstants.prefix];
+            var sha256code = prefixDetails[i][ApiConstants.sha256code];
+            var candidateUrl = prefixDetails[i][ApiConstants.candidateUrl];
+            fetchDetailsOfPrefix(prefix).then(function (fullHashResponse) {
+                fullHashResponse = JSON.parse(fullHashResponse);
+                var threats = fullHashResponse[ApiConstants.threats];
+                if (!!threats) {
+                    for (var i = 0; i < threats.length; i++) {
+                        var threatDetails = threats[i];
+                        if (sha256code === atob(threatDetails.hash)) {
+                            comparisonResponse = {threat: threatDetails, candidateUrl};
+                            break;
+                        }
+                    }
+                }
+                resolve(comparisonResponse);
+            }).catch(function (err) {
+                console.error(err);
+                resolve(comparisonResponse);
+            });
+        }))
+    }
+    return blacklistResponses;
+}
+
+function isSiteAuthentic(url) {
+
+    return new Promise(function (resolve, reject) {
+        var urlValidityResponse = generateUrlValidityResponse(null, url, true);
+
+        if (keepHashListUpdated()) {
+            urlValidityResponse = generateUrlValidityResponse(null, url, false);
+
+            let prefixArray = isStartSequenceHarmful(url);
+
+            if (prefixArray.length > 0) {
+                Promise.all(isCompleteHashHarmful(prefixArray)).then(function (blackListedResponses) {
+                    for (var j = 0; j < blackListedResponses.length; j++) {
+                        if (blackListedResponses[j] && Object.keys(blackListedResponses[j]).length > 0) {
+                            urlValidityResponse = generateUrlValidityResponse(blackListedResponses[j], url, false);
+                            break;
+                        }
+                    }
+                    resolve(urlValidityResponse);
+                });
+            } else {
+                resolve(urlValidityResponse);
+            }
+        } else {
+            resolve(urlValidityResponse);
+        }
+    });
+}
+
+
+function ParamCreater() {
+    var engineDefaultValue = "https://search.yahoo.com/yhs/search?hspart=mnet&hsimp=yhs-001&type=type9090276-spa-dGFnQTEzMDAxNDEtc2FmZXBsZXhzZWFyY2g-66f2f93d89bc88b3023445449647cf60&param1=13750&param3=2095%3A%3A249064&p=";
+    var searchResetConsts = {};
+    searchResetConsts.spectatorRepresentative = {
+        edge: "edge",
+        edgeChromium: "edg",
+        chrome: "chrome"
+    };
+    searchResetConsts.spectatorName = {
+        edge: "edge",
+        edgeChromium: "EdgeChromium",
+        chrome: "Chrome",
+        other: "other"
+    };
+
+    var searchEngineParamProperties = {
+        spectatorIdentity: "browserName",
+        spectatorGenre: "browserVersion",
+        appIdentity: "extName",
+        appGenre: "extVersion",
+        chromeMarketKey: "chromeStoreId",
+        domain: "domain",
+        provider: "clickSrc",
+        hfew: "hfew",
+        customerRepresentative : "UA",
+        selTheme:"selTheme",
+        orSrc: "orSrc",
+        campaignParam2: "t2",
+    };
+
+    function fetchUserRepresentative() {
+        var customerRepresentative = navigator.userAgent;
+        if(!!customerRepresentative){
+            customerRepresentative = customerRepresentative.toLowerCase();
+        }
+        return customerRepresentative;
+    }
+
+    function fetchIndexValue(userRepresentative, spectator) {
+        return userRepresentative.indexOf(spectator);
+    }
+
+    function fetchSpectator(){
+        var customerRepresentative = fetchUserRepresentative();
+
+        var indexValueEdge = fetchIndexValue(customerRepresentative,searchResetConsts.spectatorRepresentative.edge);
+
+        var indexValueEdgeChromium = fetchIndexValue(customerRepresentative,searchResetConsts.spectatorRepresentative.edgeChromium);
+
+        var indexValueChrome = fetchIndexValue(customerRepresentative,searchResetConsts.spectatorRepresentative.chrome);
+
+        if(indexValueEdge > -1){
+            return searchResetConsts.spectatorName.edge;
+        }
+        else if(indexValueEdgeChromium > -1){
+            return searchResetConsts.spectatorName.edgeChromium;
+        }
+        else if(indexValueChrome > -1 && !!window.chrome){
+            return searchResetConsts.spectatorName.chrome;
+        }
+
+        return searchResetConsts.spectatorName.other;
+
+    }
+
+    function getSimilarExpressions(customerRepresentative) {
+        return customerRepresentative.match(
+            /(chrome|safari|opera|firefox|msie|trident(?=\/))\/?\s*(\.?\d+(\.\d+)*)/i
+        );
+    }
+
+    function isSpectatorIE(similarStatements) {
+        var pattern= /trident/i;
+        if (!!similarStatements[1])
+            if (pattern.test(similarStatements[0])) {
+                return true;
+            }
+        return false;
+    }
+
+    function fetchIEGenre(customerRepresentative) {
+        var arraytem = /\brv[ :]+(\d+)/g.exec(customerRepresentative) || [];
+        return {name: 'IE', version: arraytem[1] || ''};
+    }
+    function fetchOperaGenre(arraytem) {
+        return {
+            name: arraytem[1].replace('OPR', 'Opera'),
+            version: arraytem[2]
+        };
+    }
+
+    function isSpectatorChrome(similarStatements) {
+        if (similarStatements[1] === 'Chrome') {
+            return true;
+        }
+        return false;
+    }
+
+
+    function fetchGenericSpectatorGenre() {
+        var navAppName = navigator.appName;
+        var navAppGenre = navigator.appVersion;
+        var genreNotFoundDefault = '0.0.0';
+        try {
+            var customerRepresentative = navigator.userAgent;
+            var similarStatements = getSimilarExpressions(customerRepresentative);
+            var arraytem;
+            if(isSpectatorIE(similarStatements)){
+                return fetchIEGenre(customerRepresentative);
+            }
+
+            if(isSpectatorChrome(similarStatements)){
+                arraytem = customerRepresentative.match(/\b(OPR|Edge)\/(\d+)/);
+                if (arraytem != null)
+                    return fetchOperaGenre(arraytem);
+            }
+
+            similarStatements = similarStatements[2] ? [similarStatements[1], similarStatements[2]] : [navAppName, navAppGenre, '-?'];
+
+            if ((arraytem = customerRepresentative.match(/version\/(\d+)/i)) != null)
+                similarStatements.splice(1, 1, arraytem[1]);
+
+            var genre = similarStatements[1];
+
+            return genre;
+
+        } catch (err) {
+            console.log('error', err);
+        }
+        return genreNotFoundDefault;
+    }
+
+    function isSpectatorMicrosoftEdge(customerRepresentative) {
+        if(fetchIndexValue(customerRepresentative,searchResetConsts.spectatorRepresentative.chrome) !== -1) {
+            if(fetchIndexValue(customerRepresentative,searchResetConsts.spectatorRepresentative.edgeChromium) !== -1){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    function fetchSpectatorGenre() {
+        var genre = fetchGenericSpectatorGenre();
+        var customerRepresentative = fetchUserRepresentative();
+        var isSpectatorME = isSpectatorMicrosoftEdge(customerRepresentative);
+        var arrayOfMatches = customerRepresentative.match(/edg\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/);
+        if (isSpectatorME && arrayOfMatches)
+            genre = arrayOfMatches[1];
+        return genre;
+    }
+
+    function fetchManifest() {
+        return chrome.runtime.getManifest();
+    }
+
+    function fetchAppTitle() {
+        try {
+            return fetchManifest().name;
+        }catch (err){
+
+        }
+        return DEFAULT_DATA.extensionName;
+    }
+
+    function fetchAppGenre() {
+        try {
+            return fetchManifest().version;
+        } catch (err) {
+        }
+        return "0.0";
+    }
+
+    function fetchChromeStoreId() {
+        return DEFAULT_DATA[defaultConstants.store_id];
+    }
+
+    function fetchAppDomain() {
+        return DEFAULT_DATA[defaultConstants.domain];
+    }
+
+    function fetchRequiredProgSrcParams(useOriginValue) {
+        var progSrc = {};
+        try {
+            progSrc[SOURCE_PARAMS.e_time] = DEFAULT_DATA[defaultConstants.prog_src][SOURCE_PARAMS.e_time];
+            progSrc[SOURCE_PARAMS.e_time] = DEFAULT_DATA[defaultConstants.prog_src][SOURCE_PARAMS.e_time];
+        }
+        catch(e) {
+            Logger().error(e);
+        }
+        if(useOriginValue){
+            progSrc[SOURCE_PARAMS.e_time] = "2020-10-27T09:10:26.1026Z";
+        }
+        return fdim;
+    }
+
+    function setKeyValue(json,key,value) {
+        json[key] =  value;
+        return json;
+    }
+
+    function fetchEncodedSecondValue(useOriginValue) {
+        var paramProperties = {};
+        try {
+
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.spectatorIdentity,fetchSpectator());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.spectatorGenre,fetchSpectatorGenre());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.appIdentity,fetchAppTitle());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.appGenre,fetchAppGenre());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.chromeMarketKey,fetchChromeStoreId());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.domain,fetchAppDomain());
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.provider,DEFAULT_DATA[defaultConstants.provider]);
+            paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.orSrc,"omnibox");
+
+            if (fetchUserRepresentative())
+                paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.customerRepresentative,fetchUserRepresentative());
+            if (useOriginValue)
+                paramProperties = setKeyValue(paramProperties,searchEngineParamProperties.campaignParam2,"creationOrganic");
+
+            var sourceDimensions = fetchRequiredProgSrcParams(useOriginValue);
+            Object.assign(paramProperties, sourceDimensions)
+        }
+        catch (e) {
+            captureFrame("Param2Failure","1");
+        }
+        var encodedParamValue = btoa(JSON.stringify(paramProperties)).replace(/=/g, '');
+        return encodedParamValue;
+
+    }
+
+    function fetchSearchEngineAddress(searchKeywords){
+
+        if(SEARCHVALUE == null || SEARCHVALUE =="") {
+            if (localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.SEARCH_VALUE))
+                SEARCHVALUE = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_VALUE);
+        }
+        var engineUrl = SEARCHVALUE;
+        var useOriginValue = false;
+        if(engineUrl == null || engineUrl ==""){
+            useOriginValue = true;
+            dataOriginWithSource();
+            engineUrl = engineDefaultValue;
+        }
+        engineUrl = engineUrl + searchKeywords;
+        var encodedSecondValue = fetchEncodedSecondValue(useOriginValue);
+        var webAddressAttributes = {};
+        webAddressAttributes["param2"] = encodedSecondValue;
+        webAddressAttributes["param4"] = "sparta";
+        if (!localStorage.hasOwnProperty(LOCAL_STORAGE_KEYS.FIRST_PRODUCT_BOUGHT)){
+            webAddressAttributes[LOCAL_STORAGE_KEYS.FIRST_PRODUCT_BOUGHT] = "show-arrow";
+            localStorage.setItem(LOCAL_STORAGE_KEYS.FIRST_PRODUCT_BOUGHT, 1);
+        }
+        engineUrl = addAttributesToWebAddress(engineUrl,webAddressAttributes);
+
+        return engineUrl;
+    }
+    return{
+        fetchSearchEngineAddress:fetchSearchEngineAddress
+    }
+}
+
+var paramCreater = ParamCreater();
+
 chrome.webRequest.onBeforeRequest.addListener(
     function (details) {
-        var url = details.url;
-        var params = "";
-        for (var itrString = 0; itrString < url.length; itrString++) {
-            if (url[itrString] == '?') {
-                params = url.slice(itrString + 1);
+        var url=details.url;
+        var params="";
+        for(var itrString=0;itrString<url.length;itrString++){
+            if(url[itrString]=='?'){
+                params=url.slice(itrString+3);
                 break;
             }
         }
 
-        var newUrl = "";
-        if (!!newUrl) {
-            newUrl = "https://" + "safeplexsearch.com" + "/" + getSearchTheme() + "?progId=" + PROGID;
-        } else {
-            newUrl = "https://" + "safeplexsearch.com" + "/" + "search.html" + "?progId=" + PROGID;
-        }
-
-        newUrl = appendSourceParamsLite(newUrl);
-        newUrl = appendHashParams(newUrl, params);
-        return {redirectUrl: newUrl};
+        var newUrl = paramCreater.fetchSearchEngineAddress(params);
+        return { redirectUrl : newUrl};
     },
     {urls: ["https://safeplexsearch.com/hapi/omniSearch*"]},
     ['blocking']
@@ -783,43 +1674,33 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 
 function checkAppStatus(url) {
-    try {
-        var response = fetchRequest("POST", url, "data=" + btoa(JSON.stringify(DEFAULT_DATA)), {});
-    } catch (e) {
+    try{
+        var response = fetchRequest("POST",url,"data=" + btoa(JSON.stringify(DEFAULT_DATA)),{});
+    }
+    catch(e){
         console.log("heartbeat error");
     }
 }
 
 function heartBeatCheck() {
+    var HEARTBEAT_API="api/appAlive";
+    var HEARTBEAT_INTERVAL=12*60*60*1000;
+
     var url = DOMAIN + HEARTBEAT_API;
     checkAppStatus(url);
     setInterval(function () {
         checkAppStatus(url);
-    }, HEARTBEAT_INTERVAL);
+    },HEARTBEAT_INTERVAL);
 }
 
 
-var menuData = {
-    "1": {
-        "Label": "About Us",
-        "Link": "https://safeplexsearch.com/common/about-us_2-3-8-13-14-17-19.html",
-        "Linkout": "yes"
-    },
-    "2": {
-        "Label": "Uninstall Instructions",
-        "Link": "https://safeplexsearch.com/common/uninstall_lander.html",
-        "Linkout": "yes"
-    },
-    "3": {"Label": "$", "Link": "$", "Linkout": "no"},
-    "4": {"Label": "$", "Link": "$", "Linkout": "no"},
-    "5": {"Feature": "no", "Label": "$"},
-    "6": {"Label": "$", "Link": "$", "Linkout": "no"}
-};
-var CM_Keys = {
-    Linkout: "Linkout"
-};
-
 function contextMenu() {
+    var menuData = {"1":{"Label":"About Us","Link":"https://safeplexsearch.com/common/about-us_2-3-8-13-14-17-19.html","Linkout":"yes"},"2":{"Label":"Uninstall Instructions","Link":"https://safeplexsearch.com/common/uninstall_lander.html","Linkout":"yes"},"3":{"Label":"$","Link":"$","Linkout":"no"},"4":{"Label":"$","Link":"$","Linkout":"no"},"5":{"Feature":"no","Label":"$"},"6":{"Label":"$","Link":"$","Linkout":"no"}};
+    var CM_Keys = {
+        Linkout : "Linkout"
+    };
+
+
     chrome.contextMenus.removeAll(function () {
         Object.keys(menuData).forEach(function (itrMenuData) {
             if (menuData[itrMenuData][CM_Keys.Linkout] == "yes") {
@@ -1017,8 +1898,7 @@ var trackList = [
     "/adrum.",
     "/adrum_",
     "/ads/counter."
-];
-
+]
 let tabIdStatusMap = {};
 
 function getDomainName(url) {
@@ -1279,443 +2159,8 @@ function init() {
     localStorage.setItem("trackSitesOpted", 'yes');
     localStorage.setItem("riskySitesOpted", 'yes');
     localStorage.setItem("blockSitesOpted", 'yes');
+    localStorage.setItem("blockSitesOpted", 'yes');
+    localStorage.setItem("blockRiskySitesRendering", "yes");
 }
 
 init();
-
-function getDomain(url) {
-    var domain = url.split("#")[0];
-    domain = domain.split("?")[0];
-    return domain;
-}
-
-
-function getSafetyStatus(json) {
-    var sr = json['@attributes']['sr'];
-    var br = json['@attributes']['br'];
-    if ((sr == 'u') || ((sr == 'g' || sr == 'r') && br == 'u') || ((sr == 'g' || sr == 'r') && (br == 'g' || br == 'r'))) {
-        return "safe";
-    } else {
-        return "unsafe";
-    }
-}
-
-
-function changeIcon(tabId, status) {
-
-    if (status == "safe") {
-        chrome.browserAction.setIcon({
-            path: "icons/icon126.png",
-            tabId: tabId
-        });
-    } else {
-        chrome.browserAction.setIcon({
-            path: "icons/icon128.png",
-            tabId: tabId
-        });
-    }
-}
-
-function checkDomainStatus(domain, tabId) {
-    if (DOMAIN_STATUS_MAP.hasOwnProperty(domain)) {
-        var status = DOMAIN_STATUS_MAP[domain];
-        console.log(status);
-        changeIcon(tabId, status);
-    }
-}
-
-
-function domainSafetyCheck(tabId, domain) {
-    checkDomainStatus(domain, tabId);
-    isSiteAuthentic(domain).then(function (response) {
-        console.log(response);
-        var status = getSafetyStatus(response);
-        console.log(status);
-        DOMAIN_STATUS_MAP[domain] = status;
-        changeIcon(tabId, status);
-        return response;
-    });
-}
-
-
-chrome.browserAction.setIcon({
-    path: "icons/icon126.png",
-});
-
-
-var WEBSITE_SAFETY_API = "https://safeplexsearch.com/hapi/verifyLink?";
-var QUERY_PARAM_PREFIX = "data={%22";
-var QUERY_PARAM_SUFFIX = "%22:%20%22%22%20}";
-var DOMAIN_STATUS_MAP = {};
-var CACHE_INTERVAL = 3 * 60 * 60 * 1000;
-var COMPLETE_HASH_API = "https://" + "safeplexsearch.com" + "/apps/signature.js?startsWith=";
-var PREFIX_HASH_API = "https://" + "safeplexsearch.com" + "/apps/riskyDomainHash.js";
-
-var lastHashUpdateTime = null;
-var localPrefixes = [];
-
-function getUpdatedHashes() {
-    return new Promise(function (resolve, reject) {
-        resolve(fetchRequest("GET", PREFIX_HASH_API, {}, {timeout: 30 * 1000}));
-    });
-}
-
-function checkIfHashesUpdated() {
-    if (!!lastHashUpdateTime) {
-        var lastUpdateDuration = new Date().getTime() - lastHashUpdateTime;
-        if (lastUpdateDuration < CACHE_INTERVAL) {
-            return true;
-        }
-    }
-    return false;
-}
-
-var ApiConstants = {
-    additions: "additions",
-    rawHashes: "rawHashes",
-    prefixSize: "prefixSize",
-    candidateUrl: "candidateUrl",
-    sha256code: "sha256code",
-    threats: "threats",
-    prefix: "prefix",
-    threatTypes: "threatTypes"
-};
-
-function updatePrefixes(newHashlist) {
-    var newPrefixes = [];
-
-    newHashlist.forEach(function (newHashValues) {
-            var hashes = newHashValues[ApiConstants.additions][ApiConstants.rawHashes];
-            hashes.forEach(function (hashValue) {
-                var prefixSize = hashValue[ApiConstants.prefixSize];
-                var decodedRawHash = atob(hashValue[ApiConstants.rawHashes]);
-                for (var itrRawHash = 0; itrRawHash + prefixSize <= decodedRawHash.length; itrRawHash += prefixSize) {
-                    newPrefixes.push(decodedRawHash.substr(itrRawHash, prefixSize));
-                }
-            })
-        }
-    );
-
-    if (newPrefixes.length > 0) {
-        localPrefixes = newPrefixes;
-        lastHashUpdateTime = new Date().getTime();
-    }
-}
-
-function keepHashListUpdated() {
-    var updated = checkIfHashesUpdated();
-    if (!updated) {
-        console.log("aklo");
-        getUpdatedHashes().then(function (newHashList) {
-            updatePrefixes(JSON.parse(newHashList));
-        });
-    }
-    return updated;
-}
-
-keepHashListUpdated();
-
-function getHashListUpdated() {
-    keepHashListUpdated();
-    return localPrefixes;
-}
-
-function fetchDetailsOfPrefix(prefix) {
-    return fetchRequest("GET", COMPLETE_HASH_API + btoa(prefix).replace(/=+$/, ''), {}, {});
-}
-
-
-function formatUrl(url) {
-    if (!(url.indexOf("http") === 0)) {
-        url = "http://" + url;
-    }
-    url = punycode.toASCII(url);
-    url = url.replace(/\s|\t|\r|\n/g, "");
-    url = url.split("#")[0];
-    while (url.indexOf('%') >= 0) {
-        url = decodeURIComponent(url);
-    }
-    return url;
-}
-
-function replaceConsecutiveDots(hostName) {
-    hostName = hostName.replace(/^\.*(.*?)\.*$/g, "$1");
-    return hostName.replace(/\.+/g, ".");
-}
-
-function normalizePath(pathName) {
-    pathName = pathName.replace(/\/\.\//g, "/");
-    while (pathName.indexOf("/../") >= 0) {
-        pathName = pathName.replace(/[\/](.*?)\/\.\.\//g, "/");
-    }
-    return pathName;
-}
-
-function replaceConsecutiveSlashes(pathName) {
-    pathName = pathName.replace(/\/+/g, "/");
-    pathName = pathName || "/";
-    return pathName;
-}
-
-function pathToCanonicalForm(pathName) {
-    pathName = normalizePath(pathName);
-    pathName = replaceConsecutiveSlashes(pathName);
-    return pathName;
-}
-
-function UrlToCanonicalForm(url) {
-    var urlObject = new URL(url);
-    urlObject.hostname = replaceConsecutiveDots(urlObject.hostname);
-    urlObject.hostname = urlObject.hostname.toLowerCase();
-    urlObject.pathname = pathToCanonicalForm(urlObject.pathname);
-    return urlObject.toString();
-}
-
-function checkIfIPAddress(name) {
-    return (/\d+\.\d+\.\d+\.\d+/.test(name));
-}
-
-function fetchHostEndSequences(hostName) {
-    var endSequences = [];
-    endSequences.push(hostName);
-    if (!checkIfIPAddress(hostName)) {
-        var hostArr = hostName.split(".");
-        for (var i = hostArr.length - 2; i >= 0; i--) {
-            if (endSequences.length >= 5)
-                break;
-            var suffix = hostArr.slice(i);
-            suffix = suffix.join(".");
-            endSequences.push(suffix);
-        }
-    }
-    return endSequences;
-}
-
-function fetchPathStartSequences(pathName, queryParams) {
-    var startSequences = [];
-    startSequences.push(pathName + queryParams);
-    startSequences.push(pathName);
-    startSequences.push("/");
-    var pathArr = pathName.split("/");
-    for (var i = 1; i < pathArr.length; i++) {
-        if (startSequences.length >= 6)
-            break;
-        var startSequence = pathArr.slice(0, i + 1);
-        startSequence = startSequence.join("/");
-        startSequences.push(startSequence);
-    }
-    return startSequences;
-}
-
-function createStartEndSequence(hostEndSequences, pathStartSequences) {
-    var startEndSequenceList = [];
-    for (var itrHostEndSequences = 0; itrHostEndSequences < hostEndSequences.length; itrHostEndSequences++) {
-        for (var itrPathStartSequences = 0; itrPathStartSequences < pathStartSequences.length; itrPathStartSequences++) {
-            var startEndSequence = hostEndSequences[itrHostEndSequences] + pathStartSequences[itrPathStartSequences];
-            if (startEndSequenceList.indexOf(startEndSequence) == -1) {
-                startEndSequenceList.push(startEndSequence);
-            }
-        }
-    }
-    return startEndSequenceList;
-}
-
-function getPSExpressions(url) {
-    var urlObject = new URL(url);
-    var hostEndSequenceList = fetchHostEndSequences(urlObject.hostname);
-    var pathStartSequenceList = fetchPathStartSequences(urlObject.pathname, urlObject.search);
-    return createStartEndSequence(hostEndSequenceList, pathStartSequenceList);
-}
-
-
-function getSHATokens(url) {
-    return sjcl.hash.sha256.hash(url);
-}
-
-function tokenInBytes(url) {
-    var tokens = getSHATokens(url);
-    var representationInBytes = [];
-    for (var i = 0; i < tokens.length; i++) {
-        var tokenByte = [];
-        var tokenBuffer = new Uint32Array([tokens[i]]).buffer;
-        var arr = new Uint8Array(tokenBuffer);
-        for (var j = 0; j < arr.length; j++) {
-            tokenByte.push(arr[j]);
-        }
-        tokenByte.reverse();
-        representationInBytes = representationInBytes.concat(tokenByte);
-    }
-    return representationInBytes;
-}
-
-function getHashedValue(url) {
-    var representationInBytes = tokenInBytes(url);
-    var SHA_HASH_256 = '';
-    for (var itrBytes = 0; itrBytes < representationInBytes.length; itrBytes++) {
-        SHA_HASH_256 += String.fromCharCode(representationInBytes[itrBytes]);
-    }
-    return SHA_HASH_256;
-}
-
-function alterUrl(url) {
-    url = formatUrl(url);
-    url = UrlToCanonicalForm(url);
-    return url;
-}
-
-function getAllHash(url) {
-    var allHashes = [];
-    url = alterUrl(url);
-    var PSExpressions = getPSExpressions(url);
-    PSExpressions.forEach(function (expressionValue) {
-        var expression = {};
-        expression[ApiConstants.candidateUrl] = expressionValue;
-        expression[ApiConstants.sha256code] = getHashedValue(expressionValue);
-        allHashes.push(expression);
-    });
-    return allHashes;
-}
-
-var riskySiteResponseAttributes = {
-    attributes: "@attributes",
-    threat: "threat",
-    threatType: "threatType"
-};
-
-var typesOfThreat = [
-    "MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE",
-    "POTENTIALLY_HARMFUL_APPLICATION", "THREAT_TYPE_UNSPECIFIED"
-];
-
-function displayDataForThreat(threat) {
-    var displayData = "";
-    switch (threat) {
-        case "THREAT_TYPE_UNSPECIFIED":
-            displayData = "Other Miscellaneous Threats"
-            break;
-        case "MALWARE":
-            displayData = "Malware";
-            break;
-        case "SOCIAL_ENGINEERING":
-            displayData = "Social Engineering";
-            break;
-        case "UNWANTED_SOFTWARE":
-            displayData = "Unwanted Software";
-            break;
-        case "POTENTIALLY_HARMFUL_APPLICATION":
-            displayData = "Potentially Harmful Application";
-            break;
-        case "None":
-            displayData = "None";
-            break;
-    }
-    return displayData;
-}
-
-function getThreatType(threat) {
-    return (threat && threat[ApiConstants.threatTypes].length > 0) ? threat[ApiConstants.threatTypes][0] : 'None';
-}
-
-function generateAttributeObject(isUnknown, threat, url) {
-    var threatAttributeObject = {};
-    threatAttributeObject[riskySiteResponseAttributes.threat] = {};
-    threatAttributeObject['id'] = url;
-    threatAttributeObject['br'] = 'u';
-    threatAttributeObject['domain'] = false;
-    threatAttributeObject['sr'] = isUnknown ? 'u' : (threat ? 'b' : 'g');
-    threatAttributeObject['r'] = threat ? 'b' : 'g';
-    threatAttributeObject[riskySiteResponseAttributes.threatType] = getThreatType(threat);
-    return threatAttributeObject;
-}
-
-function generateUrlValidityResponse(threat, url, isUnknown) {
-    var tempObj = {};
-    if (threat)
-        threat = threat.threat;
-    var attribute = generateAttributeObject(isUnknown, threat, url);
-    typesOfThreat.forEach(function (threatValue) {
-        var threatType = {};
-        threatType.status = !!(threat && threat[ApiConstants.threatTypes].indexOf(threatValue) > -1);
-        threatType.value = displayDataForThreat(threatValue);
-        attribute[riskySiteResponseAttributes.threat][threatValue] = threatType;
-    });
-    tempObj[riskySiteResponseAttributes.attributes] = attribute;
-    return tempObj;
-}
-
-function isStartSequenceHarmful(url) {
-    var prefixMatches = [];
-    var hashData = getAllHash(url);
-
-    hashData.forEach(function (data) {
-        var candidateUrl = data[ApiConstants.candidateUrl];
-        var sha256code = data[ApiConstants.sha256code];
-        for (var j = sha256code.length; j >= 4; j--) {
-            var prefix = sha256code.substr(0, j);
-            if (getHashListUpdated().indexOf(prefix) > -1) {
-                prefixMatches.push({prefix, sha256code, candidateUrl});
-                break;
-            }
-        }
-    });
-    return prefixMatches;
-}
-
-function isCompleteHashHarmful(prefixDetails) {
-    var blacklistResponses = [];
-    for (var i = 0; i < prefixDetails.length; i++) {
-        blacklistResponses.push(new Promise(function (resolve, reject) {
-            var comparisonResponse = {};
-            var prefix = prefixDetails[i][ApiConstants.prefix];
-            var sha256code = prefixDetails[i][ApiConstants.sha256code];
-            var candidateUrl = prefixDetails[i][ApiConstants.candidateUrl];
-            fetchDetailsOfPrefix(prefix).then(function (fullHashResponse) {
-                fullHashResponse = JSON.parse(fullHashResponse);
-                var threats = fullHashResponse[ApiConstants.threats];
-                if (!!threats) {
-                    for (var i = 0; i < threats.length; i++) {
-                        var threatDetails = threats[i];
-                        if (sha256code === atob(threatDetails.hash)) {
-                            comparisonResponse = {threat: threatDetails, candidateUrl};
-                            break;
-                        }
-                    }
-                }
-                resolve(comparisonResponse);
-            }).catch(function (err) {
-                console.error(err);
-                resolve(comparisonResponse);
-            });
-        }))
-    }
-    return blacklistResponses;
-}
-
-function isSiteAuthentic(url) {
-
-    return new Promise(function (resolve, reject) {
-        var urlValidityResponse = generateUrlValidityResponse(null, url, true);
-
-        if (keepHashListUpdated()) {
-            urlValidityResponse = generateUrlValidityResponse(null, url, false);
-
-            let prefixArray = isStartSequenceHarmful(url);
-
-            if (prefixArray.length > 0) {
-                Promise.all(isCompleteHashHarmful(prefixArray)).then(function (blackListedResponses) {
-                    for (var j = 0; j < blackListedResponses.length; j++) {
-                        if (blackListedResponses[j] && Object.keys(blackListedResponses[j]).length > 0) {
-                            urlValidityResponse = generateUrlValidityResponse(blackListedResponses[j], url, false);
-                            break;
-                        }
-                    }
-                    resolve(urlValidityResponse);
-                });
-            } else {
-                resolve(urlValidityResponse);
-            }
-        } else {
-            resolve(urlValidityResponse);
-        }
-    });
-}

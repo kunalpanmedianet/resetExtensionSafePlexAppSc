@@ -28,6 +28,7 @@ storageKeys = {
     riskySitesData: "riskySitesData"
 };
 
+
 document.addEventListener('clearBrowsingData', function (e) {
     clearBrowsingData(e);
 });

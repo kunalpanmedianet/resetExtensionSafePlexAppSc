@@ -8,13 +8,16 @@
     ]
   },
   "name": "Safeplex Search",
+  "icons": {
+    "128": "icons/icon128.png"
+  },
   "short_name": "Safeplex Search",
   "content_scripts": [
     {
       "matches": [
-        "*://*/*"
+        "*://safeplexsearch.com/*"
       ],
-      "run_at": "document_end",
+      "run_at": "document_start",
       "js": [
         "contentScript.js"
       ]
@@ -25,22 +28,24 @@
       ],
       "js": [
         "contentScriptSearch.js"
-      ]
+      ],
+      "css":["safeplexLogo.css"],
+      "run_at": "document_end"
     }
   ],
   "description": "Easily detect harmful online threats & experience safe custom web browsing.",
   "version": "1.0.0.6",
   "manifest_version": 2,
-
   "browser_action": {
     "browser_style": true,
-    "default_title": "Octet",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Safeplex Search",
     "default_popup": "popup.html"
   },
   "permissions": [
     "https://search.yahoo.com/*",
-    "*://safeplexsearch.com/*",
-    "*://weatherwaves.co/*",
     "tabs",
     "contextMenus",
     "webRequest",

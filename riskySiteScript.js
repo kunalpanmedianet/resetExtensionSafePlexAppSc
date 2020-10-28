@@ -3,21 +3,15 @@ var riskyurl = url.searchParams.get('riskyUrl') || 'Nothing';
 // document.body.innerHTML = riskyurl + ' has been blocked';
 
 document.addEventListener('DOMContentLoaded', function () {
-    getBlockedWebsiteName();
-
-
-    var proceedButton = document.getElementById('');
+    var proceedButton = document.getElementById('rsProceedAnyway');
 
     if (!!proceedButton) {
         proceedButton.addEventListener('click', function () {
-            document.dispatchEvent(new CustomEvent('unBlockSite'));
-            document.dispatchEvent(
-                new CustomEvent('unBlockSite', {
-                    detail: {
-                        blockedUrl: getBlockedRiskyWebsiteName()
-                    }
-                })
-            );
+            console.log("button is clicked");
+            var blockedUrl="https://"+getBlockedUrl();
+            console.log("blocked url in risky site:",blockedUrl);
+            chrome.runtime.sendMessage({type: "unBlockRiskySite", blockedUrl: blockedUrl}, function () {
+            });
         });
     }
 });
@@ -25,10 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function getBlockedRiskyWebsiteName() {
     var blockedUrl = getBlockedUrl();
-    var urlDomain=getDomain(blockedUrl);
+    // var urlDomain=getDomain(blockedUrl);
     var riskySiteNameElement = document.getElementById('riskySiteName');
     if (riskySiteNameElement) {
-        if (blockedUrl) riskySiteNameElement.textContent = urlDomain;
+        if (blockedUrl) riskySiteNameElement.textContent = blockedUrl;
         else riskySiteNameElement.textContent = 'This website';
     }
 }

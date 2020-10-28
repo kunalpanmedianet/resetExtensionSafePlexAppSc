@@ -69,9 +69,9 @@
                     <!-- SubTabs -->
                     <div class="subTabsWrap">
                         <ul>
-                            <li popup-subtab="threats" class="active"><span>Threats</span></li>
+                            <li popup-subtab="threats" class="active"><span>Threat Scan</span></li>
                             <li popup-subtab="browsingData"><span></span>Browsing Data</li>
-                            <li popup-subtab="filterSearch"><span>Filter Search</span></li>
+                            <li popup-subtab="filterSearch"><span>Protected Search</span></li>
                         </ul>
                     </div>
                     <!-- SubTabs -->
@@ -155,7 +155,8 @@
                                         </svg>
                                     </div>
                                     <div class="notifWrap__notifLabel">
-                                        Website is <span>un</span>safe to browse!
+                                        <span class="safe">This website is safe to browse!</span>
+                                        <span class="hide unsafe">This is a suspicious website.</span>
                                     </div>
                                 </div>
                                 <!-- Banner -->
@@ -368,7 +369,7 @@
                                                     </svg>
                                                 </div>
                                                 <div class="threatText">
-                                                    Software Engineering
+                                                    Phishing
                                                 </div>
                                             </div>
                                         </div>
@@ -458,8 +459,9 @@
                                     </p>
 
                                     <p class="disabledThreatDisclaimer">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas justo dolor,
-                                        venenatis.
+                                        Uh oh! Looks like your data has been exposed to threats online.
+                                        If this feature is disabled, you will be unable to receive threat alerts. Use the toggle button below to enable threat
+                                        alerts.
                                     </p>
 
                                 </div>

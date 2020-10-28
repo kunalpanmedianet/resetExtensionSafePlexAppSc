@@ -491,12 +491,13 @@ table {
 	display: none;
 }
 
-.notifWrap span {
+.notifWrap .unsafe,
+.notifWrap.error .safe {
 	display: none;
 }
 
-.notifWrap.error span {
-	display: inline;
+.notifWrap.error .unsafe {
+	display: block;
 }
 
 .notifWrap__notifIcon {

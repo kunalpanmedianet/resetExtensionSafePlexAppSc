@@ -2050,6 +2050,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                         DOMAIN_STATUS_MAP[domain] = status;
                         changeIcon(tabId, status);
                     });
+            }else{
+
             }
             // changeRiskySiteApprovedList(tabId);
         }

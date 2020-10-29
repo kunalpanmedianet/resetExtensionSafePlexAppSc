@@ -1866,6 +1866,7 @@ var trackList = [
     "/adrum_",
     "/ads/counter."
 ];
+
 let tabIdStatusMap = {};
 
 function getDomainName(url) {
@@ -1973,9 +1974,15 @@ function blockBlackListedUrl(data) {
         if (blockedUrls.length !== 0) {
             for (var i = 0; i < blockedUrls.length; i++) {
                 if (!!data.url && (data.url.indexOf(blockedUrls[i]) !== -1)) {
-                    return {
-                        redirectUrl: chrome.runtime.getURL('blockSite.html?blockedurl=' + blockedUrls[i] + '')
-                    };
+                    var redirectUrl = "";
+                    if (!checkInternalUrl(data.url)) {
+                        redirectUrl = 'blockSite.html?blockedurl=' + data.url + '&extensionId=1';
+                        return {
+                            redirectUrl: chrome.runtime.getURL(redirectUrl)
+                        };
+                    }
+                    // else
+                    //     redirectUrl = data.url;
                 }
             }
         }
@@ -2004,26 +2011,26 @@ function riskySiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.riskySitesOpted)));
 }
 
-function setThreatDataCount(threatType) {
-    var threatObject = {};
-    if (threatType !== 'None') {
-        if (localStorage.getItem(storageKeys.threat) !== null) {
-            threatObject = JSON.parse(localStorage.getItem(storageKeys.threat));
-            if (!!threatObject[threatType])
-                threatObject[threatType] = parseInt(threatObject[threatType]) + 1;
-            else
-                threatObject[threatType] = 1;
-        } else {
-            threatObject[threatType] = 1;
-        }
-        localStorage.setItem(storageKeys.threat, JSON.stringify(threatObject));
-    }
-}
+// function setThreatDataCount(threatType) {
+//     var threatObject = {};
+//     if (threatType !== 'None') {
+//         if (localStorage.getItem(storageKeys.threat) !== null) {
+//             threatObject = JSON.parse(localStorage.getItem(storageKeys.threat));
+//             if (!!threatObject[threatType])
+//                 threatObject[threatType] = parseInt(threatObject[threatType]) + 1;
+//             else
+//                 threatObject[threatType] = 1;
+//         } else {
+//             threatObject[threatType] = 1;
+//         }
+//         localStorage.setItem(storageKeys.threat, JSON.stringify(threatObject));
+//     }
+// }
 
 function checkInternalUrl(taburl) {
     var url = new URL(taburl);
     var extensionId = parseInt(url.searchParams.get('extensionId'));
-    return extensionId===1;
+    return extensionId === 1;
 }
 
 
@@ -2031,29 +2038,27 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (riskySiteStatus())
         if (changeInfo.url || tab.url) {
             var domain = getDomain(changeInfo.url || tab.url);
-            if (!checkRiskySiteInApprovedList(tabId, domain)) {
-                // checkDomainStatus(domain, tabId);
-                if (!checkInternalUrl(tab.url))
+            if (!checkRiskySiteInApprovedList(tabId, domain, changeInfo)) {
+                if (!checkInternalUrl(tab.url)) {
+                    checkDomainStatus(domain, tabId);
                     isSiteAuthentic(domain).then(function (response) {
                         var status = getSafetyStatus(response);
                         if (status == "unsafe") {
                             var threatType = response['@attributes']['threatType'];
                             var url = getDomainName(response['@attributes']['id']);
-                            setThreatDataCount(threatType);
+                            // setThreatDataCount(threatType);
                             setThreatStatusForTab(threatType, url, 1, tabId);
                             deleteOldData(storageKeys.riskySitesData);
                             setDataObject(url, storageKeys.riskySitesData);
-                            renderRiskySiteHtml(tabId, url);
+                            renderRiskySiteHtml(tabId, response['@attributes']['id']);
                         } else {
                             changeThreatStatusForTab(tabId);
                         }
                         DOMAIN_STATUS_MAP[domain] = status;
                         changeIcon(tabId, status);
                     });
-            }else{
-
+                }
             }
-            // changeRiskySiteApprovedList(tabId);
         }
 });
 
@@ -2146,11 +2151,18 @@ function deleteUrlFromBlackList(url) {
 var listOfApprovedRiskySite = {};
 
 function addLocalFlagForRiskySite(tabId, Url) {
-    listOfApprovedRiskySite[tabId] = getDomainName(Url);
+    listOfApprovedRiskySite[tabId] = Url;
 }
 
-function checkRiskySiteInApprovedList(tabId, url) {
-    return (listOfApprovedRiskySite.hasOwnProperty(tabId) && url.indexOf(listOfApprovedRiskySite[tabId]) !== -1)
+function checkRiskySiteInApprovedList(tabId, url, changeInfo) {
+    var siteApprovedStatus = false;
+    if (listOfApprovedRiskySite.hasOwnProperty(tabId) && url.indexOf(listOfApprovedRiskySite[tabId]) !== -1) {
+        siteApprovedStatus = true;
+        if (!!changeInfo && !!changeInfo.status && changeInfo.status === "complete")
+            changeRiskySiteApprovedList(tabId);
+    } else
+        changeRiskySiteApprovedList(tabId);
+    return siteApprovedStatus;
 }
 
 function unBlockRiskySite(tabId, Url) {

@@ -1981,8 +1981,6 @@ function blockBlackListedUrl(data) {
                             redirectUrl: chrome.runtime.getURL(redirectUrl)
                         };
                     }
-                    // else
-                    //     redirectUrl = data.url;
                 }
             }
         }
@@ -2120,10 +2118,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         case 'unBlockRiskySite':
             unBlockRiskySite(sender.tab.id, message.blockedUrl);
             break;
-        // case 'unBlockRiskySite':
-        //
-        //     renderSite(sender.tab.id,message.url)
-        //     break;
         default:
             console.log("Calling default");
     }
@@ -2150,8 +2144,13 @@ function deleteUrlFromBlackList(url) {
 
 var listOfApprovedRiskySite = {};
 
-function addLocalFlagForRiskySite(tabId, Url) {
+function unBlockRiskySite(tabId, Url) {
     listOfApprovedRiskySite[tabId] = Url;
+    renderSite(tabId, Url);
+}
+
+function renderSite(tabId, url) {
+    chrome.tabs.update(tabId, {url: url});
 }
 
 function checkRiskySiteInApprovedList(tabId, url, changeInfo) {
@@ -2165,19 +2164,8 @@ function checkRiskySiteInApprovedList(tabId, url, changeInfo) {
     return siteApprovedStatus;
 }
 
-function unBlockRiskySite(tabId, Url) {
-    addLocalFlagForRiskySite(tabId, Url);
-    renderSite(tabId, Url);
-}
-
-function renderSite(tabId, url) {
-    chrome.tabs.update(tabId, {url: url});
-}
-
-
 function blackListCurrentTabDomain(callBack) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        console.log("tabs data for blacklisting current domain: ", tabs);
         if (tabs.length > 0) {
             addUrlToBlackList(getDomainName(tabs[0].url));
             callBack({status: true});

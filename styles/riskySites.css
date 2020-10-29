@@ -96,6 +96,7 @@
 }
 
 .rsGoBack {
+	display: none;
 	width: 288px;
 	height: 58px;
 	border-radius: 2px;

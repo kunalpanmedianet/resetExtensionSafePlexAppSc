@@ -496,7 +496,8 @@ table {
 	display: none;
 }
 
-.notifWrap.error .unsafe {
+.notifWrap.error .unsafe,
+.notifWrap .safe {
 	display: block;
 }
 
@@ -733,11 +734,6 @@ table {
 	transition: ease all 240ms;
 }
 
-.clearDataButtonContent .clearData.disabled {
-	pointer-events: none;
-	opacity: 0.6;
-}
-
 .clearDataButtonContent .clearData:hover {
 	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.8);
 }
@@ -829,7 +825,7 @@ table {
 
 button:hover {
 	transition: ease all 240ms;
-	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
 }
 
 .addThisWebsite {
@@ -1023,6 +1019,10 @@ button:hover {
 	width: 6px;
 	border-right: 1px solid var(--secondaryDark);
 	border-bottom: 1px solid var(--secondaryDark);
+	transform: rotate(-135deg);
+}
+
+.accordionContainer.active .accordionHeader:after {
 	transform: rotate(45deg);
 }
 

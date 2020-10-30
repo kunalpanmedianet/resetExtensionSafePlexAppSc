@@ -32,34 +32,40 @@ const handleFilterSearch = (function () {
 
 		/* Block Risky Sites Opted */
 		htmlUtil('#blockRiskSites').on('change', function () {
-			const riskySiteStatus = Object.assign({}, customEvent);
+			const blockRiskySitesToggleStatus = Object.assign({}, customEvent);
 
-			riskySiteStatus.detail.status = htmlUtil(this).prop('checked')
+			blockRiskySitesToggleStatus.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent('blockRiskySitesRendering', riskySitesOpted);
+			Utils.dispatchEvent(
+				'blockRiskySitesToggleStatus',
+				blockRiskySitesToggleStatus
+			);
 		});
 		/* Block Risky Sites Opted */
 
 		/* Block Tracker  */
 		htmlUtil('#blockTrackers').on('change', function () {
-			const trackSiteStatus = Object.assign({}, customEvent);
+			const blockTrackerToggleStatus = Object.assign({}, customEvent);
 
-			trackSiteStatus.detail.status = htmlUtil(this).prop('checked')
+			blockTrackerToggleStatus.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
+			Utils.dispatchEvent('blockTrackerToggleStatus', blockTrackerToggleStatus);
 		});
 		/* Block Tracker  */
 
 		/* Block Websites */
 		htmlUtil('#blockWebsites').on('change', function () {
-			const blockSiteStatus = Object.assign({}, customEvent);
+			const blockedWebSitesToggleStatus = Object.assign({}, customEvent);
 
-			blockSiteStatus.detail.status = htmlUtil(this).prop('checked')
+			blockedWebSitesToggleStatus.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent('blockSiteStatus');
+			Utils.dispatchEvent(
+				'blockedWebSitesToggleStatus',
+				blockedWebSitesToggleStatus
+			);
 		});
 		/* Block Websites */
 
@@ -74,13 +80,6 @@ const handleFilterSearch = (function () {
 			e.preventDefault();
 			let url = htmlUtil('#filterSearchInput').val().trim();
 
-			// try {
-			// 	url = new URL(url);
-			// } catch (e) {
-			// 	url = null;
-			// }
-
-			// new URL(url).origin
 			if (!!url) {
 				Utils.dispatchEvent('blockUrl', {
 					detail: {
@@ -105,6 +104,8 @@ const handleFilterSearch = (function () {
 			const item = htmlUtil(this).data('item');
 			deleteUrl(item);
 		});
+
+		htmlUtil(window).on('storage', listenOnLoad);
 	}
 
 	function deleteUrl(url) {
@@ -131,11 +132,31 @@ const handleFilterSearch = (function () {
 		}
 	}
 
+	function listenOnLoad() {
+		const blockRiskySiteStorageStatus =
+			Utils.getStorageItem('blockRiskySiteStorageStatus') == 'yes'
+				? true
+				: false;
+
+		const blockTrackerStorageStatus =
+			Utils.getStorageItem('blockTrackerStorageStatus') == 'yes' ? true : false;
+
+		const blockWebSitesStorageStatus =
+			Utils.getStorageItem('blockWebSitesStorageStatus') == 'yes'
+				? true
+				: false;
+
+		htmlUtil('#blockRiskSites').prop('checked', blockRiskySiteStorageStatus);
+		htmlUtil('#blockTrackers').prop('checked', blockTrackerStorageStatus);
+		htmlUtil('#blockWebsites').prop('checked', blockWebSitesStorageStatus);
+	}
+
 	function load() {
 		toggler();
 		searchBarToggle();
 		handleCustomEvents();
 		setViewList();
+		listenOnLoad();
 	}
 
 	return {

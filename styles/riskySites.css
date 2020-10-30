@@ -97,6 +97,9 @@
 
 .rsGoBack {
 	display: none;
+}
+
+.rsProceedAnyway {
 	width: 288px;
 	height: 58px;
 	border-radius: 2px;
@@ -114,11 +117,11 @@
 	cursor: pointer;
 }
 
-.rsGoBack:hover {
+.rsProceedAnyway:hover {
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 }
 
-.rsProceedAnyway {
+/* .rsProceedAnyway {
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: normal;
@@ -129,8 +132,8 @@
 	text-align: center;
 	color: #4d4d4d;
 	text-decoration: underline;
-}
+} */
 
-.rsProceedAnyway:hover {
+/* .rsProceedAnyway:hover {
 	text-decoration: none;
-}
+} */

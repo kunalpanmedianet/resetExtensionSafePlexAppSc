@@ -1,15 +1,19 @@
 const handleFilterSearch = (function () {
-	function toggler() {
-		const toggleOption = 'filter-toggle-option';
-		htmlUtil('[' + toggleOption + ']').on('change', function () {
-			const ID = htmlUtil(this).attr(toggleOption);
-			const isChecked = htmlUtil(this).prop('checked');
+	const toggleOption = 'filter-toggle-option';
 
-			if (isChecked) {
-				htmlUtil('#' + ID).slideDown();
-			} else {
-				htmlUtil('#' + ID).slideUp();
-			}
+	function isTogglerChecked(elem) {
+		const ID = elem.attr(toggleOption);
+		const isChecked = elem.prop('checked');
+
+		if (isChecked) {
+			htmlUtil('#' + ID).slideDown();
+		} else {
+			htmlUtil('#' + ID).slideUp();
+		}
+	}
+	function toggler() {
+		htmlUtil('[' + toggleOption + ']').on('change', function () {
+			isTogglerChecked(htmlUtil(this));
 		});
 	}
 
@@ -32,40 +36,34 @@ const handleFilterSearch = (function () {
 
 		/* Block Risky Sites Opted */
 		htmlUtil('#blockRiskSites').on('change', function () {
-			const blockRiskySitesToggleStatus = Object.assign({}, customEvent);
+			const blockRiskySitesRendering = Object.assign({}, customEvent);
 
-			blockRiskySitesToggleStatus.detail.status = htmlUtil(this).prop('checked')
+			blockRiskySitesRendering.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent(
-				'blockRiskySitesToggleStatus',
-				blockRiskySitesToggleStatus
-			);
+			Utils.dispatchEvent('blockRiskySitesRendering', blockRiskySitesRendering);
 		});
 		/* Block Risky Sites Opted */
 
 		/* Block Tracker  */
 		htmlUtil('#blockTrackers').on('change', function () {
-			const blockTrackerToggleStatus = Object.assign({}, customEvent);
+			const trackSiteStatus = Object.assign({}, customEvent);
 
-			blockTrackerToggleStatus.detail.status = htmlUtil(this).prop('checked')
+			trackSiteStatus.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent('blockTrackerToggleStatus', blockTrackerToggleStatus);
+			Utils.dispatchEvent('trackSiteStatus', trackSiteStatus);
 		});
 		/* Block Tracker  */
 
 		/* Block Websites */
 		htmlUtil('#blockWebsites').on('change', function () {
-			const blockedWebSitesToggleStatus = Object.assign({}, customEvent);
+			const blockSiteStatus = Object.assign({}, customEvent);
 
-			blockedWebSitesToggleStatus.detail.status = htmlUtil(this).prop('checked')
+			blockSiteStatus.detail.status = htmlUtil(this).prop('checked')
 				? 'yes'
 				: 'no';
-			Utils.dispatchEvent(
-				'blockedWebSitesToggleStatus',
-				blockedWebSitesToggleStatus
-			);
+			Utils.dispatchEvent('blockSiteStatus', blockSiteStatus);
 		});
 		/* Block Websites */
 
@@ -134,29 +132,30 @@ const handleFilterSearch = (function () {
 
 	function listenOnLoad() {
 		const blockRiskySiteStorageStatus =
-			Utils.getStorageItem('blockRiskySiteStorageStatus') == 'yes'
+			Utils.getStorageItem(STORAGE_KEYS.BLOCK_RISKY_SITE) == 'yes'
 				? true
 				: false;
 
 		const blockTrackerStorageStatus =
-			Utils.getStorageItem('blockTrackerStorageStatus') == 'yes' ? true : false;
+			Utils.getStorageItem(STORAGE_KEYS.BLOCK_TRACKERS) == 'yes' ? true : false;
 
 		const blockWebSitesStorageStatus =
-			Utils.getStorageItem('blockWebSitesStorageStatus') == 'yes'
+			Utils.getStorageItem(STORAGE_KEYS.BLOCKED_WEBSITES) == 'yes'
 				? true
 				: false;
 
 		htmlUtil('#blockRiskSites').prop('checked', blockRiskySiteStorageStatus);
 		htmlUtil('#blockTrackers').prop('checked', blockTrackerStorageStatus);
 		htmlUtil('#blockWebsites').prop('checked', blockWebSitesStorageStatus);
+		isTogglerChecked(htmlUtil('#blockWebsites'));
 	}
 
 	function load() {
-		toggler();
+		listenOnLoad();
 		searchBarToggle();
 		handleCustomEvents();
 		setViewList();
-		listenOnLoad();
+		toggler();
 	}
 
 	return {

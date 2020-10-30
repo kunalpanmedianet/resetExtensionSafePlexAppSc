@@ -16,7 +16,7 @@ const loadEventForThreats = (function () {
 		htmlUtil('#threatDetectionToggle').on('change', function () {
 			const isChecked = htmlUtil(this).prop('checked');
 
-			Utils.dispatchEvent('threatStatus', {
+			Utils.dispatchEvent('riskySiteStatus', {
 				detail: {
 					status: isChecked ? 'yes' : 'no'
 				}
@@ -83,7 +83,9 @@ const loadEventForThreats = (function () {
 
 	function listenOnLoad() {
 		const isThreat =
-			Utils.getStorageItem('threatStorageStatus') == 'yes' ? true : false;
+			Utils.getStorageItem(STORAGE_KEYS.riskySitesOpted) == 'yes'
+				? true
+				: false;
 		htmlUtil('#threatDetectionToggle').prop('checked', isThreat);
 		isThreatEnabled(isThreat);
 	}

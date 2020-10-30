@@ -113,31 +113,31 @@ const statisticsViewController = (function () {
 		const totalCount = (function () {
 			let total = 0;
 			Array.isArray(risky) &&
-				risky.forEach(function (riskVal) {
-					total += riskVal;
-				});
+			risky.forEach(function (riskVal) {
+				total += riskVal;
+			});
 			Array.isArray(trackers) &&
-				trackers.forEach(function (trackVal) {
-					total += trackVal;
-				});
+			trackers.forEach(function (trackVal) {
+				total += trackVal;
+			});
 			return total;
 		})();
 
 		const riskCount = (function () {
 			let total = 0;
 			Array.isArray(risky) &&
-				risky.forEach(function (riskVal) {
-					total += riskVal;
-				});
+			risky.forEach(function (riskVal) {
+				total += riskVal;
+			});
 			return total;
 		})();
 
 		const trackCount = (function () {
 			let total = 0;
 			Array.isArray(trackers) &&
-				trackers.forEach(function (riskVal) {
-					total += riskVal;
-				});
+			trackers.forEach(function (riskVal) {
+				total += riskVal;
+			});
 			return total;
 		})();
 

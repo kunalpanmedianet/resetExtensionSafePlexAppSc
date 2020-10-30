@@ -1,17 +1,3 @@
-function updateSafetyStatus(status) {
-    document.getElementById("safetyStatus").innerHTML = status;
-};
-
-
-chrome.runtime.sendMessage({type: "popupHandshake"}, function () {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-
-        if (request.type == "updateSafetyStatus") {
-            updateSafetyStatus(request.status);
-        }
-        sendResponse();
-    });
-});
 let storageKeys = {};
 
 storageKeys = {
@@ -27,6 +13,7 @@ storageKeys = {
     trackSitesData: "trackSitesData",
     riskySitesData: "riskySitesData"
 };
+
 
 
 document.addEventListener('clearBrowsingData', function (e) {

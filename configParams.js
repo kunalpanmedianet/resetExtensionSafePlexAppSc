@@ -1,6 +1,6 @@
 
-var DOMAIN="https://"+"safeplexsearch.com"+"/";
-var PROGID = "13585";
+var DOMAIN="https://"+"searcharmored.com"+"/";
+var PROGID = "13774";
 var SEARCHVALUE = "";
 var FOCUS_NEWTAB="newtab";
 var SOURCE_PARAMS = {
@@ -47,9 +47,9 @@ var default_data_k = [defaultConstants.install_url, defaultConstants.install_tim
     defaultConstants.domain, defaultConstants.ext_family, defaultConstants.extensionCategory, defaultConstants.product,
     defaultConstants.spectrum, defaultConstants.sun, defaultConstants.ext_version, defaultConstants.extc_version,
     defaultConstants.scid,defaultConstants.extensionName,defaultConstants.provider];
-var default_data_v = ["", "", "https://safeplexsearch.com/safeplex/success_lander.html?progId=13585", "landerOverride", false, "success", ",",new Object(), "https://safeplexsearch.com/common/uninstall2.html?progId=13585&redirect=true",
-    "newtab", "search.html", "13585", "safeplexsearch.com", "searchReset", "safeplexsearch", "safeplexsearch",
-    ["", "organic"], "tagA1300141-safeplexsearch", "1.0.0.34", "1.0.0.16", 1, "Safeplex Search","yhs"];
+var default_data_v = ["", "", "https://searcharmored.com/commonappsc/thankyou.html?progId=13774", "landerOverride", false, "success", ",",new Object(), "https://searcharmored.com/commonoctet/uninstall.html?progId=13774&redirect=true",
+    "newtab", "search.html", "13774", "searcharmored.com", "searchReset", "searcharmored", "searcharmored",
+    ["", "organic"], "tagA1300141-searcharmored", "1.0.0.34", "1.0.0.16", 1, "Search Armored","yhs"];
 var DEFAULT_DATA = GEN_CONFIG_DATA(default_data_k, default_data_v);
 
 DEFAULT_DATA[defaultConstants.store_id] = chrome.runtime.id;
@@ -84,5 +84,5 @@ var QUERY_PARAM_PREFIX = "data={%22";
 var QUERY_PARAM_SUFFIX = "%22:%20%22%22%20}";
 var DOMAIN_STATUS_MAP = {};
 var IN_MEMORY_CACHE_INTERVAL = 3*60*60*1000;
-var HASH_DETAILS_API = "https://" + "safeplexsearch.com" + "/apps/signature.js?startsWith=";
-var HARMFUL_PREFIX_API = "https://" + "safeplexsearch.com" + "/apps/riskyDomainHash.js";
+var HASH_DETAILS_API = "https://" + "searcharmored.com" + "/apps/signature.js?startsWith=";
+var HARMFUL_PREFIX_API = "https://" + "searcharmored.com" + "/apps/riskyDomainHash.js";

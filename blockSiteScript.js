@@ -4,7 +4,7 @@ storageKeys = {
     trackSitesOpted: "trackSitesOpted",
     riskySitesOpted: "riskySitesOpted",
     blockSitesOpted: "blockSitesOpted",
-    blockRiskySitesRendering: "blockRiskySitesRendering",
+    blockRiskySitesRendering:"blockRiskySitesRendering",
     trackSiteCount: "trackSiteCount",
     riskySitesCount: "riskySitesCount",
     blockedUrls: "blockedUrls",
@@ -13,7 +13,6 @@ storageKeys = {
     trackSitesData: "trackSitesData",
     riskySitesData: "riskySitesData"
 };
-
 document.addEventListener('DOMContentLoaded', function () {
     getBlockedWebsiteName();
 
@@ -53,9 +52,9 @@ function getBlockedWebsiteName() {
 }
 
 function getDomainName(url) {
-	var element = document.createElement("a");
-	element.href = url;
-	return element.host;
+    var element = document.createElement("a");
+    element.href = url;
+    return element.host;
 }
 
 

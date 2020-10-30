@@ -3,19 +3,24 @@
     "scripts": [
       "libraries/punycode.js",
       "libraries/sjcl.js",
-      "constants.js",
-      "background.js"
+      "configParams.js",
+      "background/backgroundManager.js",
+      "background/assistor.js",
+      "background/homepageManager.js",
+      "background/initialiser.js",
+      "background/incomerHandler.js",
+      "background/resetHandler.js"
     ]
   },
-  "name": "Safeplex Search",
+  "name": "Search Armored",
   "icons": {
     "128": "icons/icon128.png"
   },
-  "short_name": "Safeplex Search",
+  "short_name": "Search Armored",
   "content_scripts": [
     {
       "matches": [
-        "*://safeplexsearch.com/*"
+        "*://searcharmored.com/*"
       ],
       "run_at": "document_start",
       "js": [
@@ -33,15 +38,15 @@
       "run_at": "document_end"
     }
   ],
-  "description": "Easily detect harmful online threats & experience safe custom web browsing.",
-  "version": "1.0.0.6",
+  "description": "Add Search Armored and enjoy a safe and brand new custom web search experience.",
+  "version": "1.0.0.1",
   "manifest_version": 2,
   "browser_action": {
     "browser_style": true,
     "default_icon": {
       "128": "icons/icon128.png"
     },
-    "default_title": "Safeplex Search",
+    "default_title": "Search Armored",
     "default_popup": "popup.html"
   },
   "permissions": [
@@ -55,11 +60,11 @@
   ],
   "chrome_settings_overrides": {
     "search_provider": {
-      "name": "Web",
-      "keyword": "Safeplex Search",
-      "favicon_url": "https://safeplexsearch.com/common/images/search.ico",
-      "search_url": "https://safeplexsearch.com/hapi/omniSearch?q={searchTerms}&acTypeId=1",
-      "suggest_url": "https://safeplexsearch.com/apps/keywordSuggestion?q={searchTerms}&acTypeId=1&browser=0",
+      "name": "Yahoo",
+      "keyword": "Search Armored",
+      "favicon_url": "https://searcharmored.com",
+      "search_url": "https://searcharmored.com/hapi/omniSearch?q={searchTerms}&acTypeId=1",
+      "suggest_url": "https://searcharmored.com/apps/dagDefaultAutocomplete?q={searchTerms}&acTypeId=1&browser=0",
       "encoding": "UTF-8",
       "is_default": true
     }

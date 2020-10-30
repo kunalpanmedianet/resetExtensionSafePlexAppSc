@@ -1,21 +1,28 @@
 const loadEventForThreats = (function () {
-	function onChangeHandle() {
+	function isThreatEnabled(threat) {
 		const enable = 'enable';
 		const disable = 'disable';
+		htmlUtil('[p-threat]').addClass('hide');
+		if (threat) {
+			htmlUtil('[p-threat="' + enable + '"]').removeClass('hide');
+			return;
+		}
+
+		htmlUtil('[p-threat="' + disable + '"]').removeClass('hide');
+		return;
+	}
+
+	function onChangeHandle() {
 		htmlUtil('#threatDetectionToggle').on('change', function () {
 			const isChecked = htmlUtil(this).prop('checked');
 
-			// Utils.dispatchEvent("");
+			Utils.dispatchEvent('threatStatus', {
+				detail: {
+					status: isChecked ? 'yes' : 'no'
+				}
+			});
 
-			htmlUtil('[p-threat]').addClass('hide');
-
-			if (isChecked) {
-				htmlUtil('[p-threat="' + enable + '"]').removeClass('hide');
-				return;
-			}
-
-			htmlUtil('[p-threat="' + disable + '"]').removeClass('hide');
-			return;
+			isThreatEnabled(isChecked);
 		});
 	}
 
@@ -70,11 +77,21 @@ const loadEventForThreats = (function () {
 				htmlUtil('[threat-name] .numberOfThreats').text(0);
 			}
 		});
+
+		htmlUtil(window).on('storage', listenOnLoad);
+	}
+
+	function listenOnLoad() {
+		const isThreat =
+			Utils.getStorageItem('threatStorageStatus') == 'yes' ? true : false;
+		htmlUtil('#threatDetectionToggle').prop('checked', isThreat);
+		isThreatEnabled(isThreat);
 	}
 
 	function load() {
 		onChangeHandle();
 		handleEvents();
+		listenOnLoad();
 	}
 
 	return {

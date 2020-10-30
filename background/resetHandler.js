@@ -332,13 +332,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     isSiteAuthentic(domain).then(function (response) {
                         var status = getSafetyStatus(response);
                         if (status === "unsafe") {
-                            if (riskySiteStatus()){
+                            // if (riskySiteStatus()){
                                 var threatType = response['@attributes']['threatType'];
                                 var url = getDomainName(response['@attributes']['id']);
                                 setThreatStatusForTab(threatType, url, 1, tabId);
                                 deleteOldData(storageKeys.riskySitesData);
                                 setDataObject(url, storageKeys.riskySitesData);
-                            }
+                            // }
                             if(blockRiskySiteRendering())
                                 renderRiskySiteHtml(tabId, response['@attributes']['id']);
                         } else {

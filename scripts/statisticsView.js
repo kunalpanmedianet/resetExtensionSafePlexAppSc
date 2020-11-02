@@ -1,58 +1,55 @@
 const statisticsViewController = (function () {
+	// height: 180,
+	// width: 308,
 	const statisticsChartConfig = {
-			height: 180,
-			width: 308,
-			animationEnabled: true,
-			theme: 'light1',
-			legend: {
-				verticalAlign: 'top',
-				horizontalAlign: 'center',
-				fontColor: '#3F4653',
-				fontSize: 11
-			},
-			dataPointMaxWidth: 16,
-			axisX: {
-				tickColor: 'transparent',
-				labelFontColor: '#A9ADb7',
-				labelFontSize: 10,
-				lineColor: '#f3f3f3'
-			},
-			axisY: {
-				gridThickness: 1,
-				tickColor: 'transparent',
-				tickLength: 1,
-				gridColor: '#f3f3f3',
-				labelFontColor: '#A9ADb7',
-				labelFontSize: 10,
-				lineColor: '#f3f3f3'
-			},
-			data: [
-				{
-					toolTipContent:
-						'<p style="text-align:center;word-wrap:break-word;">{y} <br />Risky Sites Blocked</p>',
-					type: 'stackedColumn',
-					showInLegend: true,
-					color: '#00B474',
-					name: 'Risky Sites',
-					dataPoints: []
-				},
-				{
-					toolTipContent:
-						'<p style="text-align:center;word-wrap:break-word;">{y} <br />Trackers Blocked</p>',
-					type: 'stackedColumn',
-					showInLegend: true,
-					color: '#0086F0',
-					name: 'Trackers',
-					dataPoints: []
-				}
-			]
+		series: [],
+		chart: {
+			width: '308px',
+			height: '170px',
+			type: 'bar',
+			stacked: true
 		},
-		statSelectedValues = {
-			type: 'all',
-			duration: 7
-		};
+		dataLabels: {
+			enabled: false
+		},
+		legend: {
+			position: 'left',
+			floating: true,
+			horizontalAlign: 'top',
+			show: true,
+			onItemClick: {
+				toggleDataSeries: false
+			}
+		},
+		color: ['#00b350', '#0086f0'],
+		xaxis: {
+			categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+			labels: {
+				style: {
+					fontSize: '9px'
+				}
+			}
+		},
+		plotOptions: {
+			bar: {
+				columnWidth: '40%'
+			}
+		}
+	};
+	const statSelectedValues = {
+		type: 'all',
+		duration: 7
+	};
+
 	function renderChartByData(chartConfig) {
-		const chart = new CanvasJS.Chart('statisticsViewChart', chartConfig);
+		if (typeof chart != 'undefined') {
+			chart.destroy();
+		}
+
+		chart = new ApexCharts(
+			document.querySelector('#statisticsViewChart'),
+			chartConfig
+		);
 		chart.render();
 	}
 
@@ -105,8 +102,8 @@ const statisticsViewController = (function () {
 	function renderStatChart(statisticsData) {
 		const trackers = statisticsData.track;
 		const risky = statisticsData.risky;
-		const riskyData = risky ? setDataPointsValue(risky) : null;
-		const trackerData = trackers ? setDataPointsValue(trackers) : null;
+		const riskyData = risky ? setDataPointsValue(risky) : [];
+		const trackerData = trackers ? setDataPointsValue(trackers) : [];
 
 		const newStatConfig = Object.assign({}, statisticsChartConfig);
 
@@ -148,39 +145,23 @@ const statisticsViewController = (function () {
 		if (statSelectedValues && statSelectedValues.hasOwnProperty('type')) {
 			switch (statSelectedValues.type) {
 				case 'all':
-					newStatConfig.data[0].dataPoints = riskyData;
-					newStatConfig.data[1].dataPoints = trackerData;
+					newStatConfig.series = [
+						{ name: 'Trackers', data: trackerData },
+						{ name: 'Risky Sites', data: riskyData }
+					];
 
 					htmlUtil('.siteBlockDesc').show().css('border-width', '1px');
 					htmlUtil('.trackerBlockDesc').show();
 					break;
 
 				case 'risky':
-					newStatConfig.data = [
-						{
-							toolTipContent: 'Risky Sites: {y}',
-							type: 'column',
-							showInLegend: true,
-							color: '#00B474',
-							name: 'Risky Sites',
-							dataPoints: riskyData
-						}
-					];
+					newStatConfig.series = [{ name: 'Risky Sites', data: riskyData }];
 					htmlUtil('.siteBlockDesc').show().css('border-width', '0px');
 					htmlUtil('.trackerBlockDesc').hide();
 					break;
 
 				case 'track':
-					newStatConfig.data = [
-						{
-							toolTipContent: 'Trackers: {y}',
-							type: 'column',
-							showInLegend: true,
-							color: '#0086F0',
-							name: 'Trackers',
-							dataPoints: trackerData
-						}
-					];
+					newStatConfig.series = [{ name: 'Trackers', data: trackerData }];
 					htmlUtil('.siteBlockDesc').hide();
 					htmlUtil('.trackerBlockDesc').show();
 					break;
@@ -194,21 +175,10 @@ const statisticsViewController = (function () {
 	}
 
 	function setDataPointsValue(dataPointArr) {
-		const dataSetObj = [
-			{ y: 0, label: 'S' },
-			{ y: 0, label: 'M' },
-			{ y: 0, label: 'T' },
-			{ y: 0, label: 'W' },
-			{ y: 0, label: 'T' },
-			{ y: 0, label: 'F' },
-			{ y: 0, label: 'S' }
-		];
-		dataPointArr.map(function (dataPoint, index) {
-			dataSetObj[index] = Object.assign(dataSetObj[index], {
-				y: dataPoint
-			});
-		});
-		return dataSetObj;
+		return dataPointArr.reduce(function (acc, dataPoint) {
+			acc.push(dataPoint);
+			return acc;
+		}, []);
 	}
 
 	function load() {

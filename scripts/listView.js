@@ -1,14 +1,46 @@
 const listViewController = (function () {
 	const donutChartConfig = {
-		height: 150,
-		width: 150,
-		data: [
-			{
-				type: 'doughnut',
-				toolTipContent: '{text}: {y}',
-				dataPoints: []
+		series: [],
+		chart: {
+			width: '150px',
+			height: '150px',
+			type: 'donut'
+		},
+		dataLabels: {
+			enabled: false
+		},
+		labels: ['Track Sites Data', 'Risky Sites Data'],
+		legend: {
+			position: 'left',
+			horizontalAlign: 'top',
+			offsetY: 0,
+			height: 230,
+			show: false
+		},
+		states: {
+			active: {
+				filter: {
+					type: 'none',
+					value: 0
+				}
 			}
-		]
+		},
+		plotOptions: {
+			pie: {
+				donut: {
+					labels: {
+						show: true,
+						total: {
+							showAlways: true,
+							show: true
+						},
+						name: {
+							show: false
+						}
+					}
+				}
+			}
+		}
 	};
 
 	function getListViewDataFromStorage() {
@@ -28,25 +60,19 @@ const listViewController = (function () {
 			chartConfig.toolTip = {
 				enabled: false
 			};
-			chartConfig.data[0].dataPoints.push({
-				text: 'No Data',
-				y: 100,
-				color: '#e6eaf0'
-			});
+			// chartConfig.data[0].dataPoints.push({
+			// 	text: 'No Data',
+			// 	y: 100,
+			// 	color: '#e6eaf0'
+			// });
 		} else {
-			chartConfig.data[0].dataPoints.push({
-				text: 'Risky Sites Data',
-				y: !!riskySitesData ? riskySitesData.length : 0,
-				color: '#00b350'
-			});
-			chartConfig.data[0].dataPoints.push({
-				text: 'Track Sites Data',
-				y: !!trackSitesData ? trackSitesData.length : 0,
-				color: '#0086f0'
-			});
+			chartConfig.series.push(!!trackSitesData ? trackSitesData.length : 0);
+			chartConfig.series.push(!!riskySitesData ? riskySitesData.length : 0);
 		}
-
-		const chart = new CanvasJS.Chart('listViewChart', chartConfig);
+		const chart = new ApexCharts(
+			document.querySelector('#listViewChart'),
+			chartConfig
+		);
 		chart.render();
 	}
 

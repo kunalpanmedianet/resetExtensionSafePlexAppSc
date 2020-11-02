@@ -1,15 +1,11 @@
 const loadEventForThreats = (function () {
 	function isThreatEnabled(threat) {
-		const enable = 'enable';
-		const disable = 'disable';
-		htmlUtil('[p-threat]').addClass('hide');
-		if (threat) {
-			htmlUtil('[p-threat="' + enable + '"]').removeClass('hide');
-			return;
-		}
-
-		htmlUtil('[p-threat="' + disable + '"]').removeClass('hide');
-		return;
+		const isEnabled = threat ? 'enabled' : 'disabled';
+		htmlUtil('[p-threat="' + isEnabled + '"]')
+			.removeClass('hide')
+			.siblings('[p-threat]')
+			.addClass('hide');
+		htmlUtil('.threatActions').text(isEnabled);
 	}
 
 	function onChangeHandle() {

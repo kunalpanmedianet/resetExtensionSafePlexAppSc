@@ -9,7 +9,7 @@ const listViewController = (function () {
 		dataLabels: {
 			enabled: false
 		},
-		labels: ['Track Sites Data', 'Risky Sites Data'],
+		labels: [],
 		legend: {
 			position: 'left',
 			horizontalAlign: 'top',
@@ -57,15 +57,10 @@ const listViewController = (function () {
 		const chartConfig = Object.assign({}, donutChartConfig);
 
 		if (!riskySitesData && !trackSitesData) {
-			chartConfig.toolTip = {
-				enabled: false
-			};
-			// chartConfig.data[0].dataPoints.push({
-			// 	text: 'No Data',
-			// 	y: 100,
-			// 	color: '#e6eaf0'
-			// });
+			chartConfig.labels = [];
+			chartConfig.series.push(0);
 		} else {
+			chartConfig.labels = ['Track Sites Data', 'Risky Sites Data'];
 			chartConfig.series.push(!!trackSitesData ? trackSitesData.length : 0);
 			chartConfig.series.push(!!riskySitesData ? riskySitesData.length : 0);
 		}

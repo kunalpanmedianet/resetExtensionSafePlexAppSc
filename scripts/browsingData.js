@@ -61,14 +61,19 @@ const loadEventForBrowsingData = (function () {
 		});
 
 		htmlUtil(document).on('browsingDataDeleted', function (e) {
-			if (e.detail.status == 'OK') {
-				htmlUtil('.clearingDataText').show('slow', function () {
-					htmlUtil(this).text('Done');
-					setTimeout(function () {
-						htmlUtil(this).text('Clear Data');
-					}, 1000);
-				});
-				htmlUtil('.clearingInProgress').fadeOut();
+			if (e.detail.status.toLowerCase() == 'ok') {
+				htmlUtil('.clearingInProgress').hide();
+				htmlUtil('.clearingDataText')
+					.text('Done')
+					.show(0, function () {
+						const SELF = this;
+						setTimeout(function () {
+							htmlUtil(SELF).text('Clear Data');
+							htmlUtil('#allBrowsingData')
+								.prop('checked', false)
+								.trigger('change');
+						}, 1000);
+					});
 			}
 		});
 	}

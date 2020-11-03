@@ -45,15 +45,15 @@ const statisticsViewController = (function () {
 	};
 
 	function renderChartByData(chartConfig) {
-		if (typeof chart != 'undefined') {
-			chart.destroy();
+		if (typeof statViewChart != 'undefined') {
+			statViewChart.destroy();
 		}
 
-		chart = new ApexCharts(
+		statViewChart = new ApexCharts(
 			document.querySelector('#statisticsViewChart'),
 			chartConfig
 		);
-		chart.render();
+		statViewChart.render();
 	}
 
 	function handleEvents() {
@@ -199,11 +199,19 @@ const statisticsViewController = (function () {
 		sendEventForStat();
 	}
 
+	function storageListener() {
+		htmlUtil(window).on('storage', function (e) {
+			sendEventForStat();
+		});
+	}
+
 	return {
-		load
+		load,
+		storageListener
 	};
 })();
 
 htmlUtil(document).ready(function () {
 	statisticsViewController.load();
+	statisticsViewController.storageListener();
 });

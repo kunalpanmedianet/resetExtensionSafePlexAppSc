@@ -55,7 +55,7 @@ const listViewController = (function () {
 		const riskySitesData = getListViewDataFromStorage().riskySitesData;
 		const trackSitesData = getListViewDataFromStorage().trackSitesData;
 
-		const chartConfig = Object.assign({}, donutChartConfig);
+		const chartConfig = Object.assign({}, donutChartConfig, { series: [] });
 
 		if (!riskySitesData && !trackSitesData) {
 			chartConfig.labels = [];
@@ -65,11 +65,14 @@ const listViewController = (function () {
 			chartConfig.series.push(!!trackSitesData ? trackSitesData.length : 0);
 			chartConfig.series.push(!!riskySitesData ? riskySitesData.length : 0);
 		}
-		const chart = new ApexCharts(
+
+		if (typeof _listViewChart != 'undefined') _listViewChart.destroy();
+
+		_listViewChart = new ApexCharts(
 			document.querySelector('#listViewChart'),
 			chartConfig
 		);
-		chart.render();
+		_listViewChart.render();
 	}
 
 	function greaterThan100(item) {
@@ -89,6 +92,7 @@ const listViewController = (function () {
 
 	function renderListOnView(data, id) {
 		const list = Object.entries(data);
+		htmlUtil(id).empty();
 		if (list.length > 0) {
 			list.forEach(function (item) {
 				htmlUtil(id).append('<li>' + item[0] + '</li>');
@@ -119,23 +123,34 @@ const listViewController = (function () {
 	}
 
 	function handleEvents() {
-		htmlUtil('.acc-toggler').on('click', function () {
-			htmlUtil(this).parent().find('.acc-body').slideToggle();
-			htmlUtil(this).parent().toggleClass('active');
-		});
+		htmlUtil('.acc-toggler')
+			.unbind('click')
+			.on('click', function () {
+				htmlUtil(this).parent().find('.acc-body').slideToggle();
+				htmlUtil(this).parent().toggleClass('active');
+			});
 	}
 
 	function load() {
 		handleEvents();
-		renderChartByData();
 		renderDataToView();
+		renderChartByData();
+	}
+
+	function storageListener() {
+		htmlUtil(window).on('storage', function (e) {
+			renderDataToView();
+			renderChartByData();
+		});
 	}
 
 	return {
-		load
+		load,
+		storageListener
 	};
 })();
 
 htmlUtil(document).ready(function () {
 	listViewController.load();
+	listViewController.storageListener();
 });

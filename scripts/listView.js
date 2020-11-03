@@ -9,6 +9,7 @@ const listViewController = (function () {
 		dataLabels: {
 			enabled: false
 		},
+		colors: ['#0086f0', '#00b350'],
 		labels: [],
 		legend: {
 			position: 'left',

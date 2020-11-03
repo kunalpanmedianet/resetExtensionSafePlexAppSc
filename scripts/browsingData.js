@@ -50,11 +50,26 @@ const loadEventForBrowsingData = (function () {
 				}
 			});
 
+			htmlUtil('.clearingDataText').hide();
+			htmlUtil('.clearingInProgress').fadeIn();
+
 			clearBrowsingData.detail.deletionTime = htmlUtil(
 				'#timeRangeClearBrowsingData'
 			).val();
 
 			Utils.dispatchEvent('clearBrowsingData', clearBrowsingData);
+		});
+
+		htmlUtil(document).on('browsingDataDeleted', function (e) {
+			if (e.detail.status == 'OK') {
+				htmlUtil('.clearingDataText').show('slow', function () {
+					htmlUtil(this).text('Done');
+					setTimeout(function () {
+						htmlUtil(this).text('Clear Data');
+					}, 1000);
+				});
+				htmlUtil('.clearingInProgress').fadeOut();
+			}
 		});
 	}
 

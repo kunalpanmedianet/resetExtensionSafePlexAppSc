@@ -1,8 +1,11 @@
 const statisticsViewController = (function () {
-	// height: 180,
-	// width: 308,
 	const statisticsChartConfig = {
 		series: [],
+		tooltip: {
+			x: {
+				show: false
+			}
+		},
 		chart: {
 			width: '308px',
 			height: '170px',
@@ -21,9 +24,9 @@ const statisticsViewController = (function () {
 				toggleDataSeries: false
 			}
 		},
-		color: ['#00b350', '#0086f0'],
+		colors: ['#0086f0', '#00b350'],
 		xaxis: {
-			categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+			type: 'category',
 			labels: {
 				style: {
 					fontSize: '9px'
@@ -175,10 +178,20 @@ const statisticsViewController = (function () {
 	}
 
 	function setDataPointsValue(dataPointArr) {
-		return dataPointArr.reduce(function (acc, dataPoint) {
-			acc.push(dataPoint);
+		const acc = [
+			{ x: 'S', y: 0 },
+			{ x: 'M', y: 0 },
+			{ x: 'T', y: 0 },
+			{ x: 'W', y: 0 },
+			{ x: 'T', y: 0 },
+			{ x: 'F', y: 0 },
+			{ x: 'S', y: 0 }
+		];
+
+		return dataPointArr.reduce(function (acc, dataPoint, index) {
+			acc[index].y = dataPoint;
 			return acc;
-		}, []);
+		}, acc);
 	}
 
 	function load() {

@@ -466,6 +466,7 @@ table {
 .popupSubTabDisplay {
 	background: var(--secondaryLight);
 	min-height: 0;
+	height: 0;
 }
 
 .toggleContainer {
@@ -681,6 +682,7 @@ table {
 	line-height: normal;
 	letter-spacing: normal;
 	color: var(--black);
+	text-transform: capitalize;
 }
 /* Sub Tabs */
 /* Sub 1 */
@@ -807,12 +809,21 @@ table {
 	color: var(--black);
 }
 
+.filterHeading {
+	font-size: 13px;
+	font-weight: 700;
+}
+
 .toggleContent {
 	border: 1px solid var(--secondary);
 	border-radius: 4px;
 	background: var(--white);
 	padding: 15px;
 	margin-top: 10px;
+}
+
+.blockWebsiteTogglerContent {
+	padding-right: 17px;
 }
 
 .toggleContent_inner {
@@ -928,6 +939,10 @@ button:hover {
 	margin-bottom: 10px;
 }
 
+.blockedWebsitesListHeading.notBlocked {
+	font-size: 11px;
+}
+
 .blockedList {
 	overflow: auto;
 }
@@ -974,7 +989,6 @@ button:hover {
 	border: 1px solid var(--secondary);
 	background: var(--white);
 	border-radius: 4px;
-	overflow: hidden;
 }
 
 .viewContainer {
@@ -987,6 +1001,9 @@ button:hover {
 }
 
 #listViewChart {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	height: 150px;
 	width: 150px;
 }
@@ -1074,6 +1091,16 @@ button:hover {
 
 .accordionContainer.active .accordionHeader:after {
 	transform: rotate(45deg);
+}
+
+.subHeading {
+	font-size: 13px;
+	font-weight: bold;
+	font-stretch: normal;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: normal;
+	color: var(--black);
 }
 
 .listViewContainer .subHeading {
@@ -1285,3 +1312,25 @@ button:hover {
 }
 
 /* @Modal Css */
+
+.apexcharts-canvas {
+	display: flex;
+	align-items: center;
+}
+
+.apexcharts-canvas svg {
+	overflow: visible;
+}
+
+.apexcharts-menu-icon {
+	display: none !important;
+}
+
+.apexcharts-legend {
+	top: -6px !important;
+}
+
+.apexcharts-legend.position-right,
+.apexcharts-legend.position-left {
+	flex-direction: row !important;
+}

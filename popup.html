@@ -80,7 +80,7 @@
                     <div class="toggleContainer flex directionColumn flex1">
                         <!-- Threats DisplayView -->
                         <div id="threats" class="popupSubTabDisplay flex directionColumn flex1">
-                            <div p-threat="enable" class="topMain flex1 flex directionColumn">
+                            <div p-threat="enabled" class="topMain flex1 flex directionColumn">
                                 <!-- Banner -->
                                 <div n-notifwrap="error" class="notifWrap alignCenter flex">
                                     <div class="notifWrap__notifIcon flex alignCenter">
@@ -427,7 +427,7 @@
                                 </ul>
 
                             </div>
-                            <div p-threat="disable" class="hide topMainDisable flex1 flex directionColumn">
+                            <div p-threat="disabled" class="hide topMainDisable flex1 flex directionColumn">
                                 <div class="flex1 topMainDisable_inner">
                                     <div>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="72" height="61"
@@ -459,9 +459,8 @@
                                     </p>
 
                                     <p class="disabledThreatDisclaimer">
-                                        Uh oh! Looks like your data has been exposed to threats online.
-                                        If this feature is disabled, you will be unable to receive threat alerts. Use the toggle button below to enable threat
-                                        alerts.
+                                    Uh oh! Looks like your data has been exposed to threats online.
+                                    Use the toggle button below to enable threat alerts.
                                     </p>
 
                                 </div>
@@ -508,7 +507,7 @@
                         <!-- Browsing Data View -->
                         <div id="browsingData" class="popupSubTabDisplay flex directionColumn flex1 hide">
                             <div class="browsingDataContent flex1 flex directionColumn">
-                                <p class="browsingDataHeading">Clear Browsing Data</p>
+                                <p class="browsingDataHeading filterHeading">Clear Browsing Data</p>
                                 <div class="browsingDataFormContent flex1">
                                     <div class="dropDownContent alignCenter flex">
                                         <label>
@@ -599,8 +598,8 @@
                             <div class="customPadding viewContainer flex directionColumn flex1">
                                 <div class="toggler">
                                     <div class="togglerContent alignCenter flex">
-                                        <div class="flex1 filterSearch flex alignCenter">
-                                            Filter Search Enabled
+                                        <div class="flex1 filterSearch flex alignCenter filterHeading">
+                                            Filter Search
                                         </div>
                                         <!-- <div class="toggleWrapper">
                                                             <input checked type="checkbox" name="filterSearchToggler" filter-toggle-option="filterSearchOption" class="mobileToggle" id="filterSearchToggler">
@@ -632,9 +631,9 @@
                                 </div>
 
                                 <div class="toggler">
-                                    <div class="togglerContent alignCenter flex">
-                                        <div class="flex1 filterSearch flex alignCenter">
-                                            Block Website
+                                    <div class="togglerContent blockWebsiteTogglerContent alignCenter flex">
+                                        <div class="flex1 filterSearch flex alignCenter filterHeading">
+                                            Block Websites
                                         </div>
                                         <div class="toggleWrapper">
                                             <input checked type="checkbox" name="blockWebsites"
@@ -700,7 +699,7 @@
                                             </button>
                                         </div>
                                         <div class="blockedWebsitesListMessage">
-                                            <h2 class="blockedWebsitesListHeading">You have not blocked any website yet!</h2>
+                                            <h2 class="blockedWebsitesListHeading notBlocked">You have not blocked any website yet!</h2>
                                         </div>
                                         <div class="blockedWebsitesList" style="display:none">
                                             <h2 class="blockedWebsitesListHeading">Currently Blocked</h2>
@@ -1094,7 +1093,7 @@
 
     
     <script src="./scripts/jQuery.js"></script>
-    <script src="./scripts/canvasjs.js"></script>
+    <script src="./scripts/chart.js"></script>
     <script src="./scripts/constants.js"></script>
     <script src="./scripts/util.js"></script>
     <script src="./scripts/popup.js"></script>

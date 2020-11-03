@@ -33,6 +33,14 @@ const statisticsViewController = (function () {
 				}
 			}
 		},
+		yaxis: {
+			tickAmount: 2,
+			labels: {
+				formatter: function (val) {
+					return val.toFixed(0);
+				}
+			}
+		},
 		plotOptions: {
 			bar: {
 				columnWidth: '40%'
@@ -123,6 +131,8 @@ const statisticsViewController = (function () {
 			return total;
 		})();
 
+		window._totalRiskCounts = totalCount;
+
 		const riskCount = (function () {
 			let total = 0;
 			Array.isArray(risky) &&
@@ -159,12 +169,14 @@ const statisticsViewController = (function () {
 
 				case 'risky':
 					newStatConfig.series = [{ name: 'Risky Sites', data: riskyData }];
+					newStatConfig.colors = ['#00b350'];
 					htmlUtil('.siteBlockDesc').show().css('border-width', '0px');
 					htmlUtil('.trackerBlockDesc').hide();
 					break;
 
 				case 'track':
 					newStatConfig.series = [{ name: 'Trackers', data: trackerData }];
+					newStatConfig.colors = ['#0086f0'];
 					htmlUtil('.siteBlockDesc').hide();
 					htmlUtil('.trackerBlockDesc').show();
 					break;
@@ -174,22 +186,28 @@ const statisticsViewController = (function () {
 			}
 		}
 
+		if (_totalRiskCounts > 0) {
+			newStatConfig.yaxis.tickAmount = 5;
+		} else {
+			newStatConfig.yaxis.tickAmount = 2;
+		}
+
 		renderChartByData(newStatConfig);
 	}
 
 	function setDataPointsValue(dataPointArr) {
 		const acc = [
-			{ x: 'S', y: 0 },
-			{ x: 'M', y: 0 },
-			{ x: 'T', y: 0 },
-			{ x: 'W', y: 0 },
-			{ x: 'T', y: 0 },
-			{ x: 'F', y: 0 },
-			{ x: 'S', y: 0 }
+			{ x: 'S', y: '' },
+			{ x: 'M', y: '' },
+			{ x: 'T', y: '' },
+			{ x: 'W', y: '' },
+			{ x: 'T', y: '' },
+			{ x: 'F', y: '' },
+			{ x: 'S', y: '' }
 		];
 
 		return dataPointArr.reduce(function (acc, dataPoint, index) {
-			acc[index].y = dataPoint;
+			acc[index].y = dataPoint || 0;
 			return acc;
 		}, acc);
 	}

@@ -63,8 +63,8 @@
       "name": "Yahoo",
       "keyword": "Search Armored",
       "favicon_url": "https://searcharmored.com",
-      "search_url": "https://searcharmored.com/hapi/omniSearch?q={searchTerms}&acTypeId=1",
-      "suggest_url": "https://searcharmored.com/apps/dagDefaultAutocomplete?q={searchTerms}&acTypeId=1&browser=0",
+      "search_url": "https://searcharmored.com/hapi/customSearch?q={searchTerms}&acTypeId=1",
+      "suggest_url": "https://searcharmored.com/apps/resetOmniSuggestion?q={searchTerms}&acTypeId=1&browser=0",
       "encoding": "UTF-8",
       "is_default": true
     }

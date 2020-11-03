@@ -277,7 +277,7 @@ function blockBlackListedUrl(data) {
             for (var i = 0; i < blockedUrls.length; i++) {
                 if (!!data.url && (data.url.indexOf(blockedUrls[i]) !== -1)) {
                     var redirectUrl = "";
-                    if (!checkInternalUrl(data.url)) {
+                    if (!checkInternalUrl(data.url) && !getBockedUrl(data.url)) {
                         redirectUrl = 'blockSite.html?extensionId=1&blockedurl=' + data.url;
                         return {
                             redirectUrl: chrome.runtime.getURL(redirectUrl)
@@ -311,6 +311,10 @@ function riskySiteStatus() {
     return ('yes' === (localStorage.getItem(storageKeys.riskySitesOpted)));
 }
 
+function blockRiskySiteRendering() {
+    return ('yes' === (localStorage.getItem(storageKeys.blockRiskySitesRendering)));
+}
+
 
 function checkInternalUrl(taburl) {
     var url = new URL(taburl);
@@ -320,7 +324,6 @@ function checkInternalUrl(taburl) {
 
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    if (riskySiteStatus())
         if (changeInfo.url || tab.url) {
             var domain = getDomain(changeInfo.url || tab.url);
             if (!checkRiskySiteInApprovedList(tabId, domain, changeInfo)) {
@@ -328,13 +331,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     checkDomainStatus(domain, tabId);
                     isSiteAuthentic(domain).then(function (response) {
                         var status = getSafetyStatus(response);
-                        if (status == "unsafe") {
-                            var threatType = response['@attributes']['threatType'];
-                            var url = getDomainName(response['@attributes']['id']);
-                            setThreatStatusForTab(threatType, url, 1, tabId);
-                            deleteOldData(storageKeys.riskySitesData);
-                            setDataObject(url, storageKeys.riskySitesData);
-                            renderRiskySiteHtml(tabId, response['@attributes']['id']);
+                        if (status === "unsafe") {
+                            // if (riskySiteStatus()){
+                                var threatType = response['@attributes']['threatType'];
+                                var url = getDomainName(response['@attributes']['id']);
+                                setThreatStatusForTab(threatType, url, 1, tabId);
+                                deleteOldData(storageKeys.riskySitesData);
+                                setDataObject(url, storageKeys.riskySitesData);
+                            // }
+                            if(blockRiskySiteRendering())
+                                renderRiskySiteHtml(tabId, response['@attributes']['id']);
                         } else {
                             changeThreatStatusForTab(tabId);
                         }
@@ -452,16 +458,19 @@ function checkRiskySiteInApprovedList(tabId, url, changeInfo) {
 
 function getBockedUrl(taburl) {
     var url = new URL(taburl);
-    if(!!url.searchParams.get('riskyUrl'))
+    if (!!url.searchParams.get('riskyUrl'))
         return url.searchParams.get('riskyUrl')
-    return "";
+    else if (!!url.searchParams.get('blockedurl')) {
+        return url.searchParams.get('blockedurl')
+    } else
+        return "";
 }
 
 function blackListCurrentTabDomain(callBack) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         if (tabs.length > 0) {
-            var tabUrl=getBockedUrl(tabs[0].url);
-            if(!!tabUrl)
+            var tabUrl = getBockedUrl(tabs[0].url);
+            if (!!tabUrl)
                 addUrlToBlackList(getDomainName(tabUrl));
             else
                 addUrlToBlackList(getDomainName(tabs[0].url));
@@ -477,7 +486,6 @@ function blackListCurrentTabDomain(callBack) {
 function init() {
     localStorage.setItem("trackSitesOpted", 'yes');
     localStorage.setItem("riskySitesOpted", 'yes');
-    localStorage.setItem("blockSitesOpted", 'yes');
     localStorage.setItem("blockSitesOpted", 'yes');
     localStorage.setItem("blockRiskySitesRendering", "yes");
 }

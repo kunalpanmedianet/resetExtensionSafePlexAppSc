@@ -18,13 +18,13 @@
 
 .topImg {
 	height: 300px;
-	background: url(../assets/rsTopBg.jpg) center / cover no-repeat;
+	background: url(../icons/rsTopBg.jpg) center / cover no-repeat;
 	flex-shrink: 0;
 }
 
 .bottmImg {
 	flex: 1;
-	background: url(../assets/rsBttmBg.png) center / cover no-repeat;
+	background: url(../icons/rsBttmBg.png) center / cover no-repeat;
 }
 
 .rsMain {

@@ -34,7 +34,6 @@ const statisticsViewController = (function () {
 			}
 		},
 		yaxis: {
-			tickAmount: 2,
 			labels: {
 				formatter: function (val) {
 					return val.toFixed(0);
@@ -186,10 +185,18 @@ const statisticsViewController = (function () {
 			}
 		}
 
-		if (_totalRiskCounts > 0) {
-			newStatConfig.yaxis.tickAmount = 5;
+		/*  0 - 1 =>  1
+			2 => 2
+			3 => 3
+			4 => 4
+		*/
+
+		if (_totalRiskCounts <= 1) {
+			newStatConfig.yaxis.tickAmount = 1;
+		} else if (_totalRiskCounts > 1 && _totalRiskCounts < 5) {
+			newStatConfig.yaxis.tickAmount = _totalRiskCounts;
 		} else {
-			newStatConfig.yaxis.tickAmount = 2;
+			newStatConfig.yaxis.tickAmount = 4;
 		}
 
 		renderChartByData(newStatConfig);

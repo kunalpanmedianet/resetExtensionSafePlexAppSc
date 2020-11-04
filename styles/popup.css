@@ -209,6 +209,10 @@ table {
 	border-radius: 20px;
 }
 
+[stat-desc='total-count'] {
+	margin-right: 4px;
+}
+
 /* MIX INs  */
 .toggleWrapper {
 	cursor: pointer;
@@ -1080,8 +1084,15 @@ button:hover {
 .accordionHeader {
 	padding: 15px 10px;
 	border-bottom: 1px solid var(--secondary);
-	justify-content: space-between;
 	cursor: pointer;
+}
+
+.accordionHeader .listViewPieDataIcon {
+	margin-right: 10px;
+}
+
+.accordionHeader .subHeading {
+	flex: 1;
 }
 
 .accordionHeader:after {

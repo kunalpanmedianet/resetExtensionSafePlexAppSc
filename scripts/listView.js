@@ -57,13 +57,15 @@ const listViewController = (function () {
 
 		const chartConfig = Object.assign({}, donutChartConfig, { series: [] });
 
-		if (!riskySitesData && !trackSitesData) {
+		if (riskySitesData.length == 0 && trackSitesData.length == 0) {
 			chartConfig.labels = [];
 			chartConfig.series.push(0);
+			htmlUtil('#listViewChart').addClass('defaultImg');
 		} else {
 			chartConfig.labels = ['Track Sites Data', 'Risky Sites Data'];
 			chartConfig.series.push(!!trackSitesData ? trackSitesData.length : 0);
 			chartConfig.series.push(!!riskySitesData ? riskySitesData.length : 0);
+			htmlUtil('#listViewChart').removeClass('defaultImg');
 		}
 
 		if (typeof _listViewChart != 'undefined') _listViewChart.destroy();

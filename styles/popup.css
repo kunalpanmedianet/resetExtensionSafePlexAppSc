@@ -1018,6 +1018,10 @@ button:hover {
 	width: 150px;
 }
 
+#listViewChart.defaultImg {
+	background: url(../assets/defaultDonutChart.png) center no-repeat;
+}
+
 .donutChartContainer {
 	border-right: 1px solid var(--secondary);
 }

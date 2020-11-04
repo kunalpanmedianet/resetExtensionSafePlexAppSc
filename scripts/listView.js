@@ -52,8 +52,8 @@ const listViewController = (function () {
 	}
 
 	function renderChartByData() {
-		const riskySitesData = getListViewDataFromStorage().riskySitesData;
-		const trackSitesData = getListViewDataFromStorage().trackSitesData;
+		const riskySitesData = getListViewDataFromStorage().riskySitesData || [];
+		const trackSitesData = getListViewDataFromStorage().trackSitesData || [];
 
 		const chartConfig = Object.assign({}, donutChartConfig, { series: [] });
 

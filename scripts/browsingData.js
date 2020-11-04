@@ -52,6 +52,7 @@ const loadEventForBrowsingData = (function () {
 
 			htmlUtil('.clearingDataText').hide();
 			htmlUtil('.clearingInProgress').fadeIn();
+			htmlUtil('.clearData').addClass('progressDisable');
 
 			clearBrowsingData.detail.deletionTime = htmlUtil(
 				'#timeRangeClearBrowsingData'
@@ -63,17 +64,18 @@ const loadEventForBrowsingData = (function () {
 		htmlUtil(document).on('browsingDataDeleted', function (e) {
 			if (e.detail.status.toLowerCase() == 'ok') {
 				htmlUtil('.clearingInProgress').hide();
-				htmlUtil('.clearingDataText')
-					.text('Done')
-					.show(0, function () {
-						const SELF = this;
-						setTimeout(function () {
-							htmlUtil(SELF).text('Clear Data');
-							htmlUtil('#allBrowsingData')
-								.prop('checked', false)
-								.trigger('change');
-						}, 1000);
-					});
+				htmlUtil('.clearingProgressDone').show(0, function () {
+					const SELF = this;
+					htmlUtil(SELF).find('svg').addClass('checkmark');
+					setTimeout(function () {
+						htmlUtil('#allBrowsingData')
+							.prop('checked', false)
+							.trigger('change');
+						htmlUtil('.clearingDataText').show();
+						htmlUtil(SELF).hide().find('svg').removeClass('checkmark');
+						htmlUtil('.clearData').removeClass('progressDisable');
+					}, 2000);
+				});
 			}
 		});
 	}

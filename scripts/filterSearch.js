@@ -84,6 +84,7 @@ const handleFilterSearch = (function () {
 						url
 					}
 				});
+				htmlUtil('#filterSearchInput').val("");
 			} else {
 				htmlUtil('.filterSearchInputWrap').addClass('error');
 			}
